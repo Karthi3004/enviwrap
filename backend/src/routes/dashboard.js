@@ -1,0 +1,11 @@
+import express from 'express';
+import { requireAuth } from '../middleware/auth.js';
+import { getDashboardStats, getSatelliteAlerts, getVisitSchedule, getLabTracker, getVVBReadiness } from '../controllers/dashboardController.js';
+const router = express.Router();
+router.use(requireAuth);
+router.get('/stats', getDashboardStats);
+router.get('/satellite-alerts', getSatelliteAlerts);
+router.get('/visit-schedule', getVisitSchedule);
+router.get('/lab-tracker', getLabTracker);
+router.get('/vvb-readiness', getVVBReadiness);
+export default router;

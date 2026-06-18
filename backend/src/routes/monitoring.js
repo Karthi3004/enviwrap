@@ -1,0 +1,11 @@
+import express from 'express';
+import { requireAuth } from '../middleware/auth.js';
+import { listVisits, getVisit, createVisit, updateVisit, createSiteVisit } from '../controllers/monitoringController.js';
+const router = express.Router();
+router.use(requireAuth);
+router.get('/farm/:farmId', listVisits);
+router.get('/:id', getVisit);
+router.post('/', createVisit);
+router.put('/:id', updateVisit);
+router.post('/site-visit', createSiteVisit);
+export default router;

@@ -1,0 +1,11 @@
+import express from 'express';
+import { requireAuth } from '../middleware/auth.js';
+import { listSamples, getSample, createSample, updateSample, uploadLabResults } from '../controllers/socController.js';
+const router = express.Router();
+router.use(requireAuth);
+router.get('/farm/:farmId', listSamples);
+router.get('/:id', getSample);
+router.post('/', createSample);
+router.put('/:id', updateSample);
+router.post('/:id/lab-results', uploadLabResults);
+export default router;

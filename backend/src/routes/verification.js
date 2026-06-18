@@ -1,0 +1,10 @@
+import express from 'express';
+import { requireAuth } from '../middleware/auth.js';
+import { listPeriods, getPeriod, createPeriod, exportVVBData } from '../controllers/verificationController.js';
+const router = express.Router();
+router.use(requireAuth);
+router.get('/', listPeriods);
+router.get('/:id', getPeriod);
+router.post('/', createPeriod);
+router.get('/:id/export', exportVVBData);
+export default router;
