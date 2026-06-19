@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { qaqcAPI } from '../../lib/api';
-import { ShieldCheck, Filter, CheckCircle, AlertCircle, X } from 'lucide-react';
+import { ShieldCheck, CheckCircle, AlertCircle, X } from 'lucide-react';
 
 const severityStyle = {
   BLOCK: { bg: 'bg-red-500/10 border-red-500/20', badge: 'bg-red-500/20 text-red-400', icon: 'text-red-400' },
@@ -38,136 +38,94 @@ export default function QAQCPage() {
       setResolving(null);
       setResolveNote('');
       await loadFlags();
-    } catch (err) { alert('Failed to resolve flag'); }
+    } catch (err) { alert('Failed to resolve'); }
   };
 
-  const counts = flags.reduce((acc, f) => {
-    acc[f.severity] = (acc[f.severity] || 0) + 1;
-    return acc;
-  }, {});
+  const counts = flags.reduce((acc, f) => { acc[f.severity] = (acc[f.severity] || 0) + 1; return acc; }, {});
+
+  const filters = [
+    { id: 'all', label: 'All', count: flags.length },
+    { id: 'BLOCK', label: 'Block', count: counts.BLOCK || 0 },
+    { id: 'ERROR', label: 'Error', count: counts.ERROR || 0 },
+    { id: 'WARNING', label: 'Warn', count: counts.WARNING || 0 },
+    { id: 'REVIEW', label: 'Review', count: counts.REVIEW || 0 },
+    { id: 'resolved', label: 'Resolved', count: null },
+  ];
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-white flex items-center gap-2">
-          <ShieldCheck size={20} className="text-emerald-400" />
-          QA/QC Flags
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto">
+      <div className="mb-5">
+        <h1 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+          <ShieldCheck size={18} className="text-emerald-400" /> QA/QC Flags
         </h1>
-        <p className="text-gray-500 text-sm mt-0.5">All 30 automated rules · Resolve BLOCK and ERROR flags before VVB export</p>
+        <p className="text-gray-500 text-xs mt-0.5">30 automated rules · resolve BLOCK flags before VVB export</p>
       </div>
 
-      {/* Summary pills */}
-      <div className="flex flex-wrap gap-2 mb-5">
-        {[
-          { id: 'all', label: 'All unresolved', count: flags.length },
-          { id: 'BLOCK', label: 'Blockers', count: counts.BLOCK || 0 },
-          { id: 'ERROR', label: 'Errors', count: counts.ERROR || 0 },
-          { id: 'WARNING', label: 'Warnings', count: counts.WARNING || 0 },
-          { id: 'REVIEW', label: 'Reviews', count: counts.REVIEW || 0 },
-          { id: 'resolved', label: 'Resolved', count: null },
-        ].map(({ id, label, count }) => (
-          <button
-            key={id}
-            onClick={() => setFilter(id)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-              filter === id
-                ? 'bg-emerald-600 text-white border-emerald-600'
-                : 'text-gray-400 border-gray-700 hover:border-gray-600 hover:text-gray-200'
-            }`}
-          >
+      {/* Filter pills — scrollable on mobile */}
+      <div className="flex gap-1.5 mb-4 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
+        {filters.map(({ id, label, count }) => (
+          <button key={id} onClick={() => setFilter(id)}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-medium border whitespace-nowrap transition-colors flex-shrink-0 ${
+              filter === id ? 'bg-emerald-600 text-white border-emerald-600' : 'text-gray-400 border-gray-700 hover:text-gray-200'
+            }`}>
             {label}
             {count !== null && (
-              <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${filter === id ? 'bg-white/20 text-white' : 'bg-gray-800 text-gray-500'}`}>
-                {count}
-              </span>
+              <span className={`px-1 py-0.5 rounded text-[10px] font-bold ${filter === id ? 'bg-white/20' : 'bg-gray-800 text-gray-500'}`}>{count}</span>
             )}
           </button>
         ))}
       </div>
 
-      {/* Flags list */}
+      {/* Flags */}
       <div className="space-y-2">
         {loading ? (
-          Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-4 animate-pulse h-16"></div>
-          ))
+          Array.from({ length: 3 }).map((_, i) => <div key={i} className="bg-gray-900 border border-gray-800 rounded-2xl p-4 animate-pulse h-16" />)
         ) : flags.length === 0 ? (
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-12 text-center">
-            <CheckCircle size={32} className="text-emerald-500 mx-auto mb-3" />
-            <p className="text-gray-400 font-medium">No flags in this category</p>
-            <p className="text-gray-600 text-sm mt-1">
-              {filter === 'resolved' ? 'No flags have been resolved yet' : 'All QA/QC checks passed'}
-            </p>
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-10 text-center">
+            <CheckCircle size={28} className="text-emerald-500 mx-auto mb-2" />
+            <p className="text-gray-400 text-sm font-medium">No flags</p>
+            <p className="text-gray-600 text-xs mt-1">{filter === 'resolved' ? 'None resolved yet' : 'All checks passed'}</p>
           </div>
         ) : (
           flags.map((flag) => {
             const style = severityStyle[flag.severity] || severityStyle.WARNING;
             return (
-              <div key={flag.id} className={`border rounded-xl p-4 ${style.bg}`}>
-                <div className="flex items-start gap-3">
-                  <AlertCircle size={15} className={`mt-0.5 flex-shrink-0 ${style.icon}`} />
+              <div key={flag.id} className={`border rounded-2xl p-4 ${style.bg}`}>
+                <div className="flex items-start gap-2.5">
+                  <AlertCircle size={14} className={`mt-0.5 flex-shrink-0 ${style.icon}`} />
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${style.badge}`}>
-                        {flag.severity}
-                      </span>
+                    <div className="flex items-center gap-1.5 flex-wrap mb-1">
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${style.badge}`}>{flag.severity}</span>
                       <span className="text-[10px] text-gray-600">Rule {flag.rule}</span>
                       {flag.farms?.farm_id && (
-                        <button
-                          onClick={() => navigate(`/farms/${flag.farm_id}`)}
-                          className="text-[10px] text-emerald-400 hover:text-emerald-300 font-mono"
-                        >
+                        <button onClick={() => navigate(`/farms/${flag.farm_id}`)} className="text-[10px] text-emerald-400 font-mono">
                           {flag.farms.farm_id}
                         </button>
                       )}
-                      {flag.farms?.farmer_full_name && (
-                        <span className="text-[10px] text-gray-500">{flag.farms.farmer_full_name}</span>
-                      )}
-                      {flag.resolved && (
-                        <span className="text-[10px] bg-gray-700 text-gray-400 px-2 py-0.5 rounded">resolved</span>
-                      )}
+                      {flag.resolved && <span className="text-[10px] bg-gray-700 text-gray-400 px-1.5 py-0.5 rounded">resolved</span>}
                     </div>
-                    <p className="text-sm text-gray-200">{flag.message}</p>
-                    {flag.field && (
-                      <code className="text-[10px] text-gray-600 mt-1 block">field: {flag.field}</code>
-                    )}
-                    {flag.resolution_note && (
-                      <p className="text-xs text-gray-500 mt-1 italic">Resolution: {flag.resolution_note}</p>
-                    )}
-                    <p className="text-[10px] text-gray-700 mt-1.5">
-                      {new Date(flag.timestamp).toLocaleString('en-IN')}
-                    </p>
+                    <p className="text-sm text-gray-200 leading-relaxed">{flag.message}</p>
+                    {flag.field && <code className="text-[10px] text-gray-600 mt-1 block">{flag.field}</code>}
+                    {flag.resolution_note && <p className="text-xs text-gray-500 mt-1 italic">Resolution: {flag.resolution_note}</p>}
                   </div>
 
                   {!flag.resolved && (
-                    <div className="flex-shrink-0">
-                      {resolving === flag.id ? (
-                        <div className="flex flex-col gap-2 min-w-48">
-                          <textarea
-                            value={resolveNote}
-                            onChange={e => setResolveNote(e.target.value)}
-                            placeholder="Resolution note..."
-                            className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs text-white placeholder-gray-600 resize-none"
-                            rows={2}
-                          />
-                          <div className="flex gap-2">
-                            <button onClick={() => resolve(flag.id)} className="flex-1 text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded">
-                              Resolve
-                            </button>
-                            <button onClick={() => setResolving(null)} className="text-gray-600 hover:text-gray-400">
-                              <X size={14} />
-                            </button>
-                          </div>
+                    resolving === flag.id ? (
+                      <div className="flex flex-col gap-2 min-w-0 w-40 flex-shrink-0">
+                        <textarea value={resolveNote} onChange={e => setResolveNote(e.target.value)}
+                          placeholder="Resolution note..." rows={2}
+                          className="w-full bg-gray-800 border border-gray-700 rounded-xl px-2 py-1.5 text-xs text-white placeholder-gray-600 resize-none" />
+                        <div className="flex gap-1.5">
+                          <button onClick={() => resolve(flag.id)} className="flex-1 text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1.5 rounded-lg">Done</button>
+                          <button onClick={() => setResolving(null)} className="text-gray-600 hover:text-gray-400 p-1"><X size={13} /></button>
                         </div>
-                      ) : (
-                        <button
-                          onClick={() => setResolving(flag.id)}
-                          className="text-xs text-gray-500 hover:text-emerald-400 border border-gray-700 hover:border-emerald-500/40 px-3 py-1.5 rounded-lg transition-colors"
-                        >
-                          Resolve
-                        </button>
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <button onClick={() => setResolving(flag.id)}
+                        className="text-xs text-gray-500 hover:text-emerald-400 border border-gray-700 px-2.5 py-1.5 rounded-xl flex-shrink-0">
+                        Resolve
+                      </button>
+                    )
                   )}
                 </div>
               </div>

@@ -27,54 +27,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex">
-      {/* Left panel */}
-      <div className="hidden lg:flex flex-col justify-between w-1/2 bg-gradient-to-br from-emerald-950 to-gray-950 p-12 border-r border-gray-800">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-emerald-500 rounded-xl flex items-center justify-center">
-            <Leaf size={18} className="text-white" />
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
+      <div className="w-full max-w-sm">
+
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-2.5 mb-8">
+          <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
+            <Leaf size={20} className="text-white" />
           </div>
           <div>
-            <div className="text-white font-semibold">Enviwrap</div>
-            <div className="text-emerald-400 text-xs font-mono">dMRV Platform</div>
+            <div className="text-white font-semibold text-lg leading-tight">Enviwrap</div>
+            <div className="text-emerald-400 text-xs font-mono leading-tight">dMRV · VM0042</div>
           </div>
         </div>
-        <div>
-          <h1 className="text-4xl font-bold text-white leading-tight mb-4">
-            Carbon credit<br />verification for<br />Tamil Nadu farmers.
-          </h1>
-          <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
-            VM0042 v2.2 compliant digital MRV system. 279-field data capture,
-            satellite cross-verification, and VVB-ready audit exports.
-          </p>
-          <div className="mt-8 grid grid-cols-3 gap-4">
-            {[
-              { label: 'Fields captured', value: '279' },
-              { label: 'QA/QC rules', value: '30' },
-              { label: 'Satellite layers', value: '4' },
-            ].map(({ label, value }) => (
-              <div key={label} className="bg-white/5 rounded-xl p-3 border border-white/10">
-                <div className="text-2xl font-bold text-emerald-400">{value}</div>
-                <div className="text-gray-500 text-xs mt-1">{label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <p className="text-gray-700 text-xs">© 2025 Enviwrap · All data encrypted</p>
-      </div>
 
-      {/* Right panel — login form */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-sm">
-          <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
-              <Leaf size={15} className="text-white" />
-            </div>
-            <span className="text-white font-semibold">Enviwrap dMRV</span>
-          </div>
-
-          <h2 className="text-2xl font-bold text-white mb-1">Sign in</h2>
-          <p className="text-gray-500 text-sm mb-8">Enter your field officer credentials</p>
+        {/* Card */}
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+          <h2 className="text-lg font-bold text-white mb-1">Sign in</h2>
+          <p className="text-gray-500 text-sm mb-6">Field officer credentials</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -84,8 +54,9 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3.5 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-colors"
+                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
                 placeholder="officer@enviwrap.in"
+                autoComplete="email"
               />
             </div>
 
@@ -97,21 +68,22 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3.5 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 transition-colors pr-10"
+                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 pr-11"
                   placeholder="••••••••"
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400 p-1"
                 >
-                  {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-3.5 py-2.5 text-red-400 text-sm">
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm">
                 {error}
               </div>
             )}
@@ -119,16 +91,16 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-2.5 px-4 rounded-lg text-sm transition-colors"
+              className="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-xl text-sm transition-all"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
-
-          <p className="text-gray-600 text-xs text-center mt-6">
-            Contact your project manager to reset credentials
-          </p>
         </div>
+
+        <p className="text-gray-700 text-xs text-center mt-4">
+          Contact your project manager to reset credentials
+        </p>
       </div>
     </div>
   );
