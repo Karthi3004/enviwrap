@@ -38,18 +38,18 @@ export default function AppShell() {
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-gray-800 flex items-center justify-between">
+      <div className="px-5 py-5 border-b border-stone-200 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
             <Leaf size={16} className="text-white" />
           </div>
           <div>
-            <div className="text-sm font-semibold text-white leading-tight">Enviwrap</div>
-            <div className="text-[10px] text-emerald-400 font-mono leading-tight">dMRV · VM0042</div>
+            <div className="text-sm font-semibold text-stone-900 leading-tight">Enviwrap</div>
+            <div className="text-[10px] text-emerald-700 font-mono leading-tight">dMRV · VM0042</div>
           </div>
         </div>
         {/* Close button — mobile only */}
-        <button onClick={closeSidebar} className="lg:hidden text-gray-500 hover:text-gray-300 p-1">
+        <button onClick={closeSidebar} className="lg:hidden text-stone-500 hover:text-stone-900 p-1">
           <X size={18} />
         </button>
       </div>
@@ -58,14 +58,14 @@ export default function AppShell() {
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
         {navItems.map(({ section, items }) => (
           <div key={section}>
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 px-2 mb-2">
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-brown-500 px-2 mb-2">
               {section}
             </div>
             <ul className="space-y-0.5">
               {items.map(({ to, icon: Icon, label, disabled }) => (
                 <li key={label}>
                   {disabled ? (
-                    <div className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg text-gray-600 cursor-not-allowed text-sm">
+                    <div className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg text-stone-500 cursor-not-allowed text-sm">
                       <Icon size={16} />
                       <span>{label}</span>
                     </div>
@@ -74,10 +74,10 @@ export default function AppShell() {
                       to={to}
                       onClick={closeSidebar}
                       className={({ isActive }) =>
-                        `flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg text-sm transition-colors ${
+                        `flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg text-sm transition-colors border-l-2 ${
                           isActive
-                            ? 'bg-emerald-500/10 text-emerald-400 font-medium'
-                            : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+                            ? 'bg-emerald-500/10 text-emerald-700 font-medium border-l-brown-500'
+                            : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100 border-l-transparent'
                         }`
                       }
                     >
@@ -93,19 +93,19 @@ export default function AppShell() {
       </nav>
 
       {/* User */}
-      <div className="px-3 py-4 border-t border-gray-800">
-        <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg bg-gray-800/50 mb-2">
-          <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+      <div className="px-3 py-4 border-t border-stone-200">
+        <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg bg-stone-100/70 mb-2">
+          <div className="w-8 h-8 rounded-full bg-brown-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
             {name.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xs font-medium text-gray-200 truncate">{name}</div>
-            <div className="text-[10px] text-gray-500 capitalize">{role}</div>
+            <div className="text-xs font-medium text-stone-800 truncate">{name}</div>
+            <div className="text-[10px] text-stone-500 capitalize">{role}</div>
           </div>
         </div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 w-full px-2.5 py-2 text-sm text-gray-500 hover:text-red-400 hover:bg-red-500/5 rounded-lg transition-colors"
+          className="flex items-center gap-2 w-full px-2.5 py-2 text-sm text-stone-500 hover:text-red-700 hover:bg-red-500/5 rounded-lg transition-colors"
         >
           <LogOut size={14} />
           <span>Sign out</span>
@@ -115,7 +115,7 @@ export default function AppShell() {
   );
 
   return (
-    <div className="flex h-screen bg-gray-950 text-gray-100 overflow-hidden">
+    <div className="flex h-screen bg-stone-50 text-stone-900 overflow-hidden">
 
       {/* Mobile overlay */}
       {sidebarOpen && (
@@ -128,7 +128,7 @@ export default function AppShell() {
       {/* Sidebar — desktop always visible, mobile slide-in */}
       <aside className={`
         fixed lg:static inset-y-0 left-0 z-50
-        w-60 bg-gray-900 border-r border-gray-800
+        w-60 bg-white border-r border-stone-200
         flex flex-col flex-shrink-0
         transform transition-transform duration-200 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -140,10 +140,10 @@ export default function AppShell() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
         {/* Mobile top bar */}
-        <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-gray-900 border-b border-gray-800 flex-shrink-0">
+        <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-white border-b border-stone-200 flex-shrink-0">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="text-gray-400 hover:text-gray-200 p-1"
+            className="text-stone-600 hover:text-stone-900 p-1"
           >
             <Menu size={20} />
           </button>
@@ -151,10 +151,10 @@ export default function AppShell() {
             <div className="w-6 h-6 bg-emerald-500 rounded flex items-center justify-center">
               <Leaf size={12} className="text-white" />
             </div>
-            <span className="text-sm font-semibold text-white">Enviwrap</span>
+            <span className="text-sm font-semibold text-stone-900">Enviwrap</span>
           </div>
           <div className="ml-auto">
-            <div className="w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center text-xs font-bold text-white">
+            <div className="w-7 h-7 rounded-full bg-brown-500 flex items-center justify-center text-xs font-bold text-white">
               {name.charAt(0).toUpperCase()}
             </div>
           </div>

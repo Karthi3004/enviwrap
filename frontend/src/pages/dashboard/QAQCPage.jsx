@@ -4,10 +4,10 @@ import { qaqcAPI } from '../../lib/api';
 import { ShieldCheck, CheckCircle, AlertCircle, X } from 'lucide-react';
 
 const severityStyle = {
-  BLOCK: { bg: 'bg-red-500/10 border-red-500/20', badge: 'bg-red-500/20 text-red-400', icon: 'text-red-400' },
-  ERROR: { bg: 'bg-orange-500/10 border-orange-500/20', badge: 'bg-orange-500/20 text-orange-400', icon: 'text-orange-400' },
-  WARNING: { bg: 'bg-amber-500/10 border-amber-500/20', badge: 'bg-amber-500/20 text-amber-400', icon: 'text-amber-400' },
-  REVIEW: { bg: 'bg-blue-500/10 border-blue-500/20', badge: 'bg-blue-500/20 text-blue-400', icon: 'text-blue-400' },
+  BLOCK: { bg: 'bg-red-500/10 border-red-500/20', badge: 'bg-red-500/20 text-red-700', icon: 'text-red-700' },
+  ERROR: { bg: 'bg-orange-500/10 border-orange-500/20', badge: 'bg-orange-500/20 text-orange-700', icon: 'text-orange-700' },
+  WARNING: { bg: 'bg-amber-500/10 border-amber-500/20', badge: 'bg-amber-500/20 text-amber-700', icon: 'text-amber-700' },
+  REVIEW: { bg: 'bg-blue-500/10 border-blue-500/20', badge: 'bg-blue-500/20 text-blue-700', icon: 'text-blue-700' },
 };
 
 export default function QAQCPage() {
@@ -55,10 +55,10 @@ export default function QAQCPage() {
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto">
       <div className="mb-5">
-        <h1 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-          <ShieldCheck size={18} className="text-emerald-400" /> QA/QC Flags
+        <h1 className="text-lg sm:text-xl font-bold text-stone-900 flex items-center gap-2">
+          <ShieldCheck size={18} className="text-emerald-700" /> QA/QC Flags
         </h1>
-        <p className="text-gray-500 text-xs mt-0.5">30 automated rules · resolve BLOCK flags before VVB export</p>
+        <p className="text-stone-500 text-xs mt-0.5">30 automated rules · resolve BLOCK flags before VVB export</p>
       </div>
 
       {/* Filter pills — scrollable on mobile */}
@@ -66,11 +66,11 @@ export default function QAQCPage() {
         {filters.map(({ id, label, count }) => (
           <button key={id} onClick={() => setFilter(id)}
             className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-medium border whitespace-nowrap transition-colors flex-shrink-0 ${
-              filter === id ? 'bg-emerald-600 text-white border-emerald-600' : 'text-gray-400 border-gray-700 hover:text-gray-200'
+              filter === id ? 'bg-emerald-600 text-white border-emerald-600' : 'text-stone-600 border-stone-300 hover:text-stone-900'
             }`}>
             {label}
             {count !== null && (
-              <span className={`px-1 py-0.5 rounded text-[10px] font-bold ${filter === id ? 'bg-white/20' : 'bg-gray-800 text-gray-500'}`}>{count}</span>
+              <span className={`px-1 py-0.5 rounded text-[10px] font-bold ${filter === id ? 'bg-white/20' : 'bg-stone-50 text-stone-500'}`}>{count}</span>
             )}
           </button>
         ))}
@@ -79,12 +79,12 @@ export default function QAQCPage() {
       {/* Flags */}
       <div className="space-y-2">
         {loading ? (
-          Array.from({ length: 3 }).map((_, i) => <div key={i} className="bg-gray-900 border border-gray-800 rounded-2xl p-4 animate-pulse h-16" />)
+          Array.from({ length: 3 }).map((_, i) => <div key={i} className="bg-white border border-stone-200 rounded-2xl p-4 animate-pulse h-16" />)
         ) : flags.length === 0 ? (
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-10 text-center">
+          <div className="bg-white border border-stone-200 rounded-2xl p-10 text-center">
             <CheckCircle size={28} className="text-emerald-500 mx-auto mb-2" />
-            <p className="text-gray-400 text-sm font-medium">No flags</p>
-            <p className="text-gray-600 text-xs mt-1">{filter === 'resolved' ? 'None resolved yet' : 'All checks passed'}</p>
+            <p className="text-stone-600 text-sm font-medium">No flags</p>
+            <p className="text-stone-500 text-xs mt-1">{filter === 'resolved' ? 'None resolved yet' : 'All checks passed'}</p>
           </div>
         ) : (
           flags.map((flag) => {
@@ -96,17 +96,17 @@ export default function QAQCPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap mb-1">
                       <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${style.badge}`}>{flag.severity}</span>
-                      <span className="text-[10px] text-gray-600">Rule {flag.rule}</span>
+                      <span className="text-[10px] text-stone-500">Rule {flag.rule}</span>
                       {flag.farms?.farm_id && (
-                        <button onClick={() => navigate(`/farms/${flag.farm_id}`)} className="text-[10px] text-emerald-400 font-mono">
+                        <button onClick={() => navigate(`/farms/${flag.farm_id}`)} className="text-[10px] text-emerald-700 font-mono">
                           {flag.farms.farm_id}
                         </button>
                       )}
-                      {flag.resolved && <span className="text-[10px] bg-gray-700 text-gray-400 px-1.5 py-0.5 rounded">resolved</span>}
+                      {flag.resolved && <span className="text-[10px] bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded">resolved</span>}
                     </div>
-                    <p className="text-sm text-gray-200 leading-relaxed">{flag.message}</p>
-                    {flag.field && <code className="text-[10px] text-gray-600 mt-1 block">{flag.field}</code>}
-                    {flag.resolution_note && <p className="text-xs text-gray-500 mt-1 italic">Resolution: {flag.resolution_note}</p>}
+                    <p className="text-sm text-stone-800 leading-relaxed">{flag.message}</p>
+                    {flag.field && <code className="text-[10px] text-stone-500 mt-1 block">{flag.field}</code>}
+                    {flag.resolution_note && <p className="text-xs text-stone-500 mt-1 italic">Resolution: {flag.resolution_note}</p>}
                   </div>
 
                   {!flag.resolved && (
@@ -114,15 +114,15 @@ export default function QAQCPage() {
                       <div className="flex flex-col gap-2 min-w-0 w-40 flex-shrink-0">
                         <textarea value={resolveNote} onChange={e => setResolveNote(e.target.value)}
                           placeholder="Resolution note..." rows={2}
-                          className="w-full bg-gray-800 border border-gray-700 rounded-xl px-2 py-1.5 text-xs text-white placeholder-gray-600 resize-none" />
+                          className="w-full bg-stone-50 border border-stone-300 rounded-xl px-2 py-1.5 text-xs text-stone-900 placeholder-stone-400 resize-none" />
                         <div className="flex gap-1.5">
                           <button onClick={() => resolve(flag.id)} className="flex-1 text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1.5 rounded-lg">Done</button>
-                          <button onClick={() => setResolving(null)} className="text-gray-600 hover:text-gray-400 p-1"><X size={13} /></button>
+                          <button onClick={() => setResolving(null)} className="text-stone-500 hover:text-stone-600 p-1"><X size={13} /></button>
                         </div>
                       </div>
                     ) : (
                       <button onClick={() => setResolving(flag.id)}
-                        className="text-xs text-gray-500 hover:text-emerald-400 border border-gray-700 px-2.5 py-1.5 rounded-xl flex-shrink-0">
+                        className="text-xs text-stone-500 hover:text-emerald-700 border border-stone-300 px-2.5 py-1.5 rounded-xl flex-shrink-0">
                         Resolve
                       </button>
                     )

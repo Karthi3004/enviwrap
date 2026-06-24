@@ -27,7 +27,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
 
         {/* Logo */}
@@ -36,46 +36,46 @@ export default function LoginPage() {
             <Leaf size={20} className="text-white" />
           </div>
           <div>
-            <div className="text-white font-semibold text-lg leading-tight">Enviwrap</div>
-            <div className="text-emerald-400 text-xs font-mono leading-tight">dMRV · VM0042</div>
+            <div className="text-stone-900 font-semibold text-lg leading-tight">Enviwrap</div>
+            <div className="text-emerald-700 text-xs font-mono leading-tight">dMRV · VM0042</div>
           </div>
         </div>
 
         {/* Card */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-          <h2 className="text-lg font-bold text-white mb-1">Sign in</h2>
-          <p className="text-gray-500 text-sm mb-6">Field officer credentials</p>
+        <div className="bg-white border border-stone-200 border-t-4 border-t-brown-500 rounded-2xl p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-stone-900 mb-1">Sign in</h2>
+          <p className="text-stone-500 text-sm mb-6">Field officer credentials</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">Email</label>
+              <label className="block text-xs font-medium text-stone-600 mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                className="w-full bg-stone-50 border border-stone-300 rounded-xl px-4 py-3 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
                 placeholder="officer@enviwrap.in"
                 autoComplete="email"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">Password</label>
+              <label className="block text-xs font-medium text-stone-600 mb-1.5">Password</label>
               <div className="relative">
                 <input
                   type={showPw ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 pr-11"
+                  className="w-full bg-stone-50 border border-stone-300 rounded-xl px-4 py-3 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 pr-11"
                   placeholder="••••••••"
                   autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400 p-1"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-600 p-1"
                 >
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -83,7 +83,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm">
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-700 text-sm">
                 {error}
               </div>
             )}
@@ -98,7 +98,7 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="text-gray-700 text-xs text-center mt-4">
+        <p className="text-brown-600 text-xs text-center mt-4">
           Contact your project manager to reset credentials
         </p>
       </div>

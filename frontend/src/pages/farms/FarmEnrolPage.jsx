@@ -28,17 +28,17 @@ const TN_CROPS = [
   'Turmeric','Ginger','Banana','Coconut','Mango','Tamarind','Neem'
 ];
 
-const inputClass = 'w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30';
+const inputClass = 'w-full bg-stone-50 border border-stone-300 rounded-xl px-4 py-3 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30';
 const selectClass = `${inputClass} cursor-pointer`;
 
 const Field = ({ label, error, children, required, hint }) => (
   <div>
-    <label className="block text-xs font-medium text-gray-400 mb-1.5">
-      {label} {required && <span className="text-red-400">*</span>}
+    <label className="block text-xs font-medium text-stone-600 mb-1.5">
+      {label} {required && <span className="text-red-700">*</span>}
     </label>
     {children}
-    {hint && !error && <p className="text-[10px] text-gray-600 mt-1">{hint}</p>}
-    {error && <p className="text-[10px] text-red-400 mt-1">{error}</p>}
+    {hint && !error && <p className="text-[10px] text-stone-500 mt-1">{hint}</p>}
+    {error && <p className="text-[10px] text-red-700 mt-1">{error}</p>}
   </div>
 );
 
@@ -48,7 +48,7 @@ export default function FarmEnrolPage() {
   const [result, setResult] = useState(null);
   const navigate = useNavigate();
 
-  const { register, handleSubmit, watch, formState: { errors }, trigger } = useForm({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm({
     defaultValues: {
       state: 'Tamil Nadu',
       boundary_satellite_match: 'Yes',
@@ -64,15 +64,17 @@ export default function FarmEnrolPage() {
 
   const watched = watch();
 
-  const nextStep = async () => {
-    const fieldsPerStep = {
-      1: ['farmer_full_name', 'farmer_phone', 'aadhaar_last4', 'village', 'district', 'block_taluk'],
-      2: ['land_type'],
-      3: ['primary_crop', 'crop_system_type'],
-    };
-    const valid = await trigger(fieldsPerStep[step] || []);
-    if (valid) setStep(s => s + 1);
+  // Map field names to the step they live on, so we can jump the user
+  // to the right step if validation fails on submit.
+  const stepOfField = {
+    farmer_full_name: 1, farmer_phone: 1, aadhaar_last4: 1, district: 1, block_taluk: 1, village: 1,
+    primary_crop: 3, crop_system_type: 3,
   };
+
+  // Users can move freely between steps — no forced order, no validation gate.
+  const goToStep = (id) => setStep(id);
+  const nextStep = () => setStep(s => Math.min(s + 1, 4));
+  const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
   const onSubmit = async (data) => {
     setSubmitting(true);
@@ -87,32 +89,38 @@ export default function FarmEnrolPage() {
     }
   };
 
+  const onInvalid = (formErrors) => {
+    // Jump to the earliest step that contains a validation error.
+    const erroredSteps = Object.keys(formErrors).map(name => stepOfField[name] || 1);
+    if (erroredSteps.length) setStep(Math.min(...erroredSteps));
+  };
+
   // Success screen
   if (step === 5 && result) {
     return (
       <div className="p-4 sm:p-6 max-w-lg mx-auto">
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 text-center">
+        <div className="bg-white border border-stone-200 rounded-2xl p-8 text-center">
           <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle size={32} className="text-emerald-400" />
+            <CheckCircle size={32} className="text-emerald-700" />
           </div>
-          <h2 className="text-xl font-bold text-white mb-1">Farm Enrolled!</h2>
-          <p className="text-gray-500 text-sm mb-3">Farm ID assigned:</p>
-          <div className="font-mono text-2xl text-emerald-400 font-bold bg-emerald-500/10 rounded-xl py-3 px-4 mb-6">
+          <h2 className="text-xl font-bold text-stone-900 mb-1">Farm Enrolled!</h2>
+          <p className="text-stone-500 text-sm mb-3">Farm ID assigned:</p>
+          <div className="font-mono text-2xl text-emerald-700 font-bold bg-emerald-500/10 rounded-xl py-3 px-4 mb-6">
             {result.farm?.farm_id}
           </div>
           {result.qaqc?.summary?.total > 0 && (
             <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mb-6 text-left">
               <div className="flex items-center gap-2 mb-1">
-                <AlertCircle size={14} className="text-amber-400" />
-                <span className="text-sm font-medium text-amber-400">QA/QC Flags</span>
+                <AlertCircle size={14} className="text-amber-700" />
+                <span className="text-sm font-medium text-amber-700">QA/QC Flags</span>
               </div>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-stone-600">
                 {result.qaqc.summary.blocks} blockers · {result.qaqc.summary.errors} errors · {result.qaqc.summary.warnings} warnings
               </p>
             </div>
           )}
           <div className="flex flex-col sm:flex-row gap-3">
-            <button onClick={() => navigate('/farms')} className="flex-1 px-4 py-3 text-sm text-gray-400 border border-gray-700 rounded-xl hover:border-gray-600">
+            <button onClick={() => navigate('/farms')} className="flex-1 px-4 py-3 text-sm text-stone-600 border border-stone-300 rounded-xl hover:border-stone-400">
               Farm List
             </button>
             <button onClick={() => navigate(`/farms/${result.farm?.id}`)} className="flex-1 px-4 py-3 text-sm bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-medium">
@@ -128,43 +136,47 @@ export default function FarmEnrolPage() {
     <div className="p-4 sm:p-6 max-w-2xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => step > 1 ? setStep(s => s - 1) : navigate('/farms')} className="text-gray-600 hover:text-gray-300 p-1">
+        <button onClick={() => step > 1 ? prevStep() : navigate('/farms')} className="text-stone-500 hover:text-stone-900 p-1">
           <ChevronLeft size={20} />
         </button>
         <div>
-          <h1 className="text-lg font-bold text-white">Enrol New Farm</h1>
-          <p className="text-gray-500 text-xs">Module 1 — Farm & Field Identity</p>
+          <h1 className="text-lg font-bold text-stone-900">Enrol New Farm</h1>
+          <p className="text-stone-500 text-xs">Module 1 — Farm & Field Identity</p>
         </div>
       </div>
 
-      {/* Stepper */}
+      {/* Stepper — click any step to jump directly, in any order */}
       <div className="flex items-center mb-6 overflow-x-auto pb-1">
         {STEPS.map((s, i) => (
           <div key={s.id} className="flex items-center flex-shrink-0">
-            <div className={`flex items-center gap-1.5 ${step === s.id ? 'text-white' : step > s.id ? 'text-emerald-400' : 'text-gray-600'}`}>
+            <button
+              type="button"
+              onClick={() => goToStep(s.id)}
+              className={`flex items-center gap-1.5 ${step === s.id ? 'text-stone-900' : step > s.id ? 'text-emerald-700' : 'text-stone-500'} hover:text-emerald-700 transition-colors`}
+            >
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all flex-shrink-0 ${
-                step === s.id ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' :
+                step === s.id ? 'border-emerald-500 bg-emerald-500/10 text-emerald-700' :
                 step > s.id ? 'border-emerald-500 bg-emerald-500 text-white' :
-                'border-gray-700 text-gray-600'
+                'border-stone-300 text-stone-500'
               }`}>
                 {step > s.id ? '✓' : s.id}
               </div>
               <span className="text-xs font-medium whitespace-nowrap hidden sm:block">{s.label}</span>
-            </div>
+            </button>
             {i < STEPS.length - 1 && (
-              <div className={`w-6 sm:w-10 h-px mx-1.5 sm:mx-2 transition-colors flex-shrink-0 ${step > s.id ? 'bg-emerald-500/50' : 'bg-gray-800'}`} />
+              <div className={`w-6 sm:w-10 h-px mx-1.5 sm:mx-2 transition-colors flex-shrink-0 ${step > s.id ? 'bg-emerald-500/50' : 'bg-stone-200'}`} />
             )}
           </div>
         ))}
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 sm:p-6">
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
+        <div className="bg-white border border-stone-200 rounded-2xl p-4 sm:p-6">
 
           {/* Step 1 — Farm Identity */}
           {step === 1 && (
             <div className="space-y-4">
-              <h2 className="text-sm font-semibold text-white mb-4">1A — Farm Identity</h2>
+              <h2 className="text-sm font-semibold text-stone-900 mb-4">1A — Farm Identity</h2>
               <Field label="Farmer Full Name" required error={errors.farmer_full_name?.message}>
                 <input {...register('farmer_full_name', { required: 'Required' })} className={inputClass} placeholder="e.g. Murugan Ramasamy" />
               </Field>
@@ -198,10 +210,10 @@ export default function FarmEnrolPage() {
           {/* Step 2 — Field Boundary */}
           {step === 2 && (
             <div className="space-y-4">
-              <h2 className="text-sm font-semibold text-white mb-2">1B — Field Boundary</h2>
+              <h2 className="text-sm font-semibold text-stone-900 mb-2">1B — Field Boundary</h2>
               <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-3 mb-4">
-                <p className="text-xs text-blue-400 font-medium mb-1">GPS Boundary</p>
-                <p className="text-xs text-gray-500">Walk the field perimeter — GPS coordinates are captured per vertex. Area is auto-calculated.</p>
+                <p className="text-xs text-blue-700 font-medium mb-1">GPS Boundary</p>
+                <p className="text-xs text-stone-500">Walk the field perimeter — GPS coordinates are captured per vertex. Area is auto-calculated.</p>
               </div>
               <Field label="GPS Accuracy (metres)" hint="Flag if >5m accuracy">
                 <input {...register('gps_accuracy_metres', { valueAsNumber: true })} type="number" step="0.1" className={inputClass} placeholder="e.g. 3.2" inputMode="decimal" />
@@ -247,7 +259,7 @@ export default function FarmEnrolPage() {
           {/* Step 3 — Farm Characteristics */}
           {step === 3 && (
             <div className="space-y-4">
-              <h2 className="text-sm font-semibold text-white mb-4">1C — Farm Characteristics</h2>
+              <h2 className="text-sm font-semibold text-stone-900 mb-4">1C — Farm Characteristics</h2>
               <Field label="Primary Crop" required error={errors.primary_crop?.message}>
                 <select {...register('primary_crop', { required: 'Required' })} className={selectClass}>
                   <option value="">Select crop</option>
@@ -302,7 +314,7 @@ export default function FarmEnrolPage() {
           {/* Step 4 — Review */}
           {step === 4 && (
             <div>
-              <h2 className="text-sm font-semibold text-white mb-4">Review & Submit</h2>
+              <h2 className="text-sm font-semibold text-stone-900 mb-4">Review & Submit</h2>
               <div className="space-y-0">
                 {[
                   ['Farmer Name', watched.farmer_full_name],
@@ -318,14 +330,14 @@ export default function FarmEnrolPage() {
                   ['Slope', watched.slope_class],
                   ['IPCC Zone', watched.ipcc_climate_zone],
                 ].map(([label, value]) => (
-                  <div key={label} className="flex justify-between py-2.5 border-b border-gray-800/60">
-                    <span className="text-xs text-gray-500">{label}</span>
-                    <span className="text-xs text-gray-200 font-medium text-right ml-4">{value || '—'}</span>
+                  <div key={label} className="flex justify-between py-2.5 border-b border-stone-200">
+                    <span className="text-xs text-stone-500">{label}</span>
+                    <span className="text-xs text-stone-800 font-medium text-right ml-4">{value || '—'}</span>
                   </div>
                 ))}
               </div>
               <div className="mt-4 bg-amber-500/5 border border-amber-500/20 rounded-xl p-3">
-                <p className="text-xs text-amber-400">
+                <p className="text-xs text-amber-700">
                   Farm ID auto-generated on submission. QA/QC rules run automatically.
                 </p>
               </div>
@@ -333,27 +345,30 @@ export default function FarmEnrolPage() {
           )}
         </div>
 
-        {/* Bottom nav */}
+        {/* Bottom nav — Previous / Next always available, data is preserved across steps */}
         <div className="flex items-center justify-between mt-4">
           <button
             type="button"
-            onClick={() => step > 1 ? setStep(s => s - 1) : navigate('/farms')}
-            className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-200 py-2 px-3"
+            onClick={() => step > 1 ? prevStep() : navigate('/farms')}
+            className="flex items-center gap-1 text-sm text-stone-500 hover:text-stone-900 py-2 px-3"
           >
             <ChevronLeft size={15} />
-            {step > 1 ? 'Back' : 'Cancel'}
+            {step > 1 ? 'Previous' : 'Cancel'}
           </button>
-          {step < 4 ? (
-            <button type="button" onClick={nextStep}
-              className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-medium px-5 py-2.5 rounded-xl transition-all">
-              Next <ChevronRight size={15} />
-            </button>
-          ) : (
-            <button type="submit" disabled={submitting}
-              className="bg-emerald-600 hover:bg-emerald-500 active:scale-95 disabled:opacity-50 text-white text-sm font-medium px-6 py-2.5 rounded-xl transition-all">
-              {submitting ? 'Enrolling...' : 'Enrol Farm'}
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {step < 4 && (
+              <button type="button" onClick={nextStep}
+                className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-medium px-5 py-2.5 rounded-xl transition-all">
+                Next <ChevronRight size={15} />
+              </button>
+            )}
+            {step === 4 && (
+              <button type="submit" disabled={submitting}
+                className="bg-emerald-600 hover:bg-emerald-500 active:scale-95 disabled:opacity-50 text-white text-sm font-medium px-6 py-2.5 rounded-xl transition-all">
+                {submitting ? 'Enrolling...' : 'Enrol Farm'}
+              </button>
+            )}
+          </div>
         </div>
       </form>
     </div>
