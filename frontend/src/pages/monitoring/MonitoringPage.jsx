@@ -4,17 +4,17 @@ import { useForm } from 'react-hook-form';
 import { monitoringAPI } from '../../lib/api';
 import { ChevronLeft, Plus, Activity, Satellite, AlertTriangle, CheckCircle, Save, MapPin } from 'lucide-react';
 
-const inputClass = 'w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500';
+const inputClass = 'w-full bg-stone-50 border border-stone-300 rounded-lg px-3 py-2 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-emerald-500';
 const selectClass = `${inputClass} cursor-pointer`;
 
 const Field = ({ label, children, hint, tag }) => (
   <div>
-    <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1.5">
+    <label className="block text-[10px] font-medium text-stone-500 uppercase tracking-wide mb-1.5">
       {label}
-      {tag && <span className="ml-1.5 text-[9px] bg-emerald-500/10 text-emerald-400 px-1 py-0.5 rounded">NEW</span>}
+      {tag && <span className="ml-1.5 text-[9px] bg-emerald-500/10 text-emerald-700 px-1 py-0.5 rounded">NEW</span>}
     </label>
     {children}
-    {hint && <p className="text-[10px] text-gray-600 mt-1">{hint}</p>}
+    {hint && <p className="text-[10px] text-stone-500 mt-1">{hint}</p>}
   </div>
 );
 
@@ -23,14 +23,14 @@ const SatelliteFlag = ({ label, match, satellite, reported, unit = '' }) => {
   return (
     <div className={`flex items-start gap-2 p-2.5 rounded-lg border text-xs ${match ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-amber-500/5 border-amber-500/20'}`}>
       {match
-        ? <CheckCircle size={12} className="text-emerald-400 mt-0.5 flex-shrink-0" />
-        : <AlertTriangle size={12} className="text-amber-400 mt-0.5 flex-shrink-0" />
+        ? <CheckCircle size={12} className="text-emerald-700 mt-0.5 flex-shrink-0" />
+        : <AlertTriangle size={12} className="text-amber-700 mt-0.5 flex-shrink-0" />
       }
       <div>
-        <p className={`font-medium ${match ? 'text-emerald-400' : 'text-amber-400'}`}>{label}</p>
-        <p className="text-gray-500 mt-0.5">
-          Satellite: <span className="text-gray-300">{satellite}{unit}</span>
-          {reported !== undefined && <> · Reported: <span className="text-gray-300">{reported}{unit}</span></>}
+        <p className={`font-medium ${match ? 'text-emerald-700' : 'text-amber-700'}`}>{label}</p>
+        <p className="text-stone-500 mt-0.5">
+          Satellite: <span className="text-stone-700">{satellite}{unit}</span>
+          {reported !== undefined && <> · Reported: <span className="text-stone-700">{reported}{unit}</span></>}
         </p>
       </div>
     </div>
@@ -103,12 +103,12 @@ export default function MonitoringPage() {
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(`/farms/${farmId}`)} className="text-gray-600 hover:text-gray-300">
+          <button onClick={() => navigate(`/farms/${farmId}`)} className="text-stone-500 hover:text-stone-900">
             <ChevronLeft size={18} />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-white">Monitoring</h1>
-            <p className="text-gray-500 text-sm">Module 4 — Annual farm visits & satellite verification</p>
+            <h1 className="text-xl font-bold text-stone-900">Monitoring</h1>
+            <p className="text-stone-500 text-sm">Module 4 — Annual farm visits & satellite verification</p>
           </div>
         </div>
         <button
@@ -121,14 +121,14 @@ export default function MonitoringPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-gray-900 border border-gray-800 rounded-xl p-1 w-fit">
+      <div className="flex gap-1 mb-6 bg-white border border-stone-200 rounded-xl p-1 w-fit">
         {[
           { id: 'annual', label: 'Annual Visits', icon: Activity },
           { id: 'site', label: 'Formal Site Visits', icon: MapPin },
           { id: 'satellite', label: 'Satellite Alerts', icon: Satellite },
         ].map(({ id, label, icon: Icon }) => (
           <button key={id} onClick={() => setActiveTab(id)}
-            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === id ? 'bg-emerald-600 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === id ? 'bg-emerald-600 text-white' : 'text-stone-500 hover:text-stone-900'}`}
           >
             <Icon size={13} />{label}
           </button>
@@ -140,46 +140,46 @@ export default function MonitoringPage() {
         <div className="space-y-3">
           {loading ? (
             Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-4 animate-pulse h-20"></div>
+              <div key={i} className="bg-white border border-stone-200 rounded-xl p-4 animate-pulse h-20"></div>
             ))
           ) : visits.length === 0 ? (
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-10 text-center text-gray-600">
+            <div className="bg-white border border-stone-200 rounded-xl p-10 text-center text-stone-500">
               No visits recorded yet.
             </div>
           ) : (
             visits.map((v) => (
               <div key={v.id}
                 onClick={() => setSelected(selected?.id === v.id ? null : v)}
-                className="bg-gray-900 border border-gray-800 rounded-xl p-4 cursor-pointer hover:border-gray-700 transition-colors"
+                className="bg-white border border-stone-200 rounded-xl p-4 cursor-pointer hover:border-stone-300 transition-colors"
               >
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-white">{v.visit_date}</span>
-                      {v.crop_year_label && <span className="text-xs text-gray-500">{v.crop_year_label}</span>}
+                      <span className="text-sm font-semibold text-stone-900">{v.visit_date}</span>
+                      {v.crop_year_label && <span className="text-xs text-stone-500">{v.crop_year_label}</span>}
                     </div>
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {v.crop_type && <span className="text-[10px] bg-gray-800 text-gray-400 px-2 py-0.5 rounded">{v.crop_type}</span>}
-                      {v.tillage_done && <span className="text-[10px] bg-gray-800 text-gray-400 px-2 py-0.5 rounded">Tillage: {v.tillage_type}</span>}
-                      {v.irrigation_done && <span className="text-[10px] bg-gray-800 text-gray-400 px-2 py-0.5 rounded">{v.irrigation_method}</span>}
+                      {v.crop_type && <span className="text-[10px] bg-stone-50 text-stone-600 px-2 py-0.5 rounded">{v.crop_type}</span>}
+                      {v.tillage_done && <span className="text-[10px] bg-stone-50 text-stone-600 px-2 py-0.5 rounded">Tillage: {v.tillage_type}</span>}
+                      {v.irrigation_done && <span className="text-[10px] bg-stone-50 text-stone-600 px-2 py-0.5 rounded">{v.irrigation_method}</span>}
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     {v.satellite_crop_match === false && (
-                      <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full">Crop mismatch</span>
+                      <span className="text-[10px] bg-amber-500/10 text-amber-700 px-2 py-0.5 rounded-full">Crop mismatch</span>
                     )}
                     {v.satellite_tillage_match === false && (
-                      <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full">Tillage mismatch</span>
+                      <span className="text-[10px] bg-amber-500/10 text-amber-700 px-2 py-0.5 rounded-full">Tillage mismatch</span>
                     )}
                     {v.satellite_crop_match !== false && v.satellite_tillage_match !== false && (
-                      <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full">Satellite OK</span>
+                      <span className="text-[10px] bg-emerald-500/10 text-emerald-700 px-2 py-0.5 rounded-full">Satellite OK</span>
                     )}
                   </div>
                 </div>
 
                 {selected?.id === v.id && (
-                  <div className="mt-4 pt-4 border-t border-gray-800 space-y-2">
-                    <p className="text-xs font-semibold text-gray-400 mb-2">Satellite Cross-verification</p>
+                  <div className="mt-4 pt-4 border-t border-stone-200 space-y-2">
+                    <p className="text-xs font-semibold text-stone-600 mb-2">Satellite Cross-verification</p>
                     <SatelliteFlag label="Crop Type" match={v.satellite_crop_match} satellite={v.satellite_crop_type} reported={v.crop_type} />
                     <SatelliteFlag label="Planting Date" match={v.planting_date_discrepancy_days <= 30} satellite={v.satellite_planting_date} reported={v.planting_date} />
                     <SatelliteFlag label="Harvest Date" match={v.harvest_date_discrepancy_days <= 30} satellite={v.satellite_harvest_date} reported={v.harvest_date} />
@@ -196,8 +196,8 @@ export default function MonitoringPage() {
 
       {/* Satellite alerts tab */}
       {activeTab === 'satellite' && (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-          <p className="text-xs text-gray-500 mb-4">Sentinel-2 & Sentinel-1 SAR cross-checks for this farm. Populated automatically by the satellite processing job.</p>
+        <div className="bg-white border border-stone-200 rounded-xl p-5">
+          <p className="text-xs text-stone-500 mb-4">Sentinel-2 & Sentinel-1 SAR cross-checks for this farm. Populated automatically by the satellite processing job.</p>
           {visits.filter(v =>
             v.satellite_crop_match === false ||
             v.satellite_tillage_match === false ||
@@ -208,7 +208,7 @@ export default function MonitoringPage() {
           ).length === 0 ? (
             <div className="text-center py-8">
               <CheckCircle size={28} className="text-emerald-500 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">No satellite discrepancies for this farm</p>
+              <p className="text-sm text-stone-500">No satellite discrepancies for this farm</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -216,19 +216,19 @@ export default function MonitoringPage() {
                 <div key={v.id}>
                   {v.satellite_crop_match === false && (
                     <div className="flex items-center gap-3 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
-                      <AlertTriangle size={14} className="text-amber-400" />
+                      <AlertTriangle size={14} className="text-amber-700" />
                       <div>
-                        <p className="text-xs font-medium text-amber-400">Crop Type Mismatch · {v.visit_date}</p>
-                        <p className="text-xs text-gray-500">Satellite: {v.satellite_crop_type} · Reported: {v.crop_type}</p>
+                        <p className="text-xs font-medium text-amber-700">Crop Type Mismatch · {v.visit_date}</p>
+                        <p className="text-xs text-stone-500">Satellite: {v.satellite_crop_type} · Reported: {v.crop_type}</p>
                       </div>
                     </div>
                   )}
                   {v.satellite_tillage_match === false && (
                     <div className="flex items-center gap-3 p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
-                      <AlertTriangle size={14} className="text-amber-400" />
+                      <AlertTriangle size={14} className="text-amber-700" />
                       <div>
-                        <p className="text-xs font-medium text-amber-400">Tillage Mismatch · {v.visit_date}</p>
-                        <p className="text-xs text-gray-500">Satellite score: {v.satellite_tillage_score} · Reported: {v.tillage_type}</p>
+                        <p className="text-xs font-medium text-amber-700">Tillage Mismatch · {v.visit_date}</p>
+                        <p className="text-xs text-stone-500">Satellite score: {v.satellite_tillage_score} · Reported: {v.tillage_type}</p>
                       </div>
                     </div>
                   )}
@@ -242,16 +242,16 @@ export default function MonitoringPage() {
       {/* Annual visit form modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 sticky top-0 bg-gray-900 z-10">
-              <h2 className="text-sm font-semibold text-white">Annual Farm Visit Record</h2>
-              <button onClick={() => setShowForm(false)} className="text-gray-600 hover:text-gray-300">✕</button>
+          <div className="bg-white border border-stone-200 rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 sticky top-0 bg-white z-10">
+              <h2 className="text-sm font-semibold text-stone-900">Annual Farm Visit Record</h2>
+              <button onClick={() => setShowForm(false)} className="text-stone-500 hover:text-stone-900">✕</button>
             </div>
             <form onSubmit={handleSubmit(onSaveVisit)} className="p-6 space-y-6">
 
               {/* Basic */}
               <div>
-                <p className="text-xs font-semibold text-gray-300 mb-3">Visit Details</p>
+                <p className="text-xs font-semibold text-stone-700 mb-3">Visit Details</p>
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Visit Date">
                     <input {...register('visit_date')} type="date" className={inputClass} required />
@@ -285,8 +285,8 @@ export default function MonitoringPage() {
               </div>
 
               {/* Tillage */}
-              <div className="border-t border-gray-800 pt-5">
-                <p className="text-xs font-semibold text-gray-300 mb-3">Tillage</p>
+              <div className="border-t border-stone-200 pt-5">
+                <p className="text-xs font-semibold text-stone-700 mb-3">Tillage</p>
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Tillage Done?">
                     <select {...register('tillage_done')} className={selectClass}>
@@ -320,8 +320,8 @@ export default function MonitoringPage() {
               </div>
 
               {/* Irrigation */}
-              <div className="border-t border-gray-800 pt-5">
-                <p className="text-xs font-semibold text-gray-300 mb-3">Irrigation</p>
+              <div className="border-t border-stone-200 pt-5">
+                <p className="text-xs font-semibold text-stone-700 mb-3">Irrigation</p>
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Irrigation Done?">
                     <select {...register('irrigation_done')} className={selectClass}>
@@ -358,8 +358,8 @@ export default function MonitoringPage() {
               </div>
 
               {/* Fertilizer */}
-              <div className="border-t border-gray-800 pt-5">
-                <p className="text-xs font-semibold text-gray-300 mb-3">Fertilizer</p>
+              <div className="border-t border-stone-200 pt-5">
+                <p className="text-xs font-semibold text-stone-700 mb-3">Fertilizer</p>
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Synthetic Fertilizer?">
                     <select {...register('synthetic_fertilizer_used')} className={selectClass}>
@@ -395,8 +395,8 @@ export default function MonitoringPage() {
               </div>
 
               {/* Evidence */}
-              <div className="border-t border-gray-800 pt-5">
-                <p className="text-xs font-semibold text-gray-300 mb-3">Evidence</p>
+              <div className="border-t border-stone-200 pt-5">
+                <p className="text-xs font-semibold text-stone-700 mb-3">Evidence</p>
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Video Evidence URL" tag>
                     <input {...register('video_evidence_url')} className={inputClass} placeholder="Upload URL or storage path" />
@@ -408,7 +408,7 @@ export default function MonitoringPage() {
               </div>
 
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="text-sm text-gray-500 hover:text-gray-300 px-4 py-2">Cancel</button>
+                <button type="button" onClick={() => setShowForm(false)} className="text-sm text-stone-500 hover:text-stone-900 px-4 py-2">Cancel</button>
                 <button type="submit" disabled={saving} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-medium px-5 py-2 rounded-lg">
                   <Save size={14} />
                   {saving ? 'Saving...' : 'Save Visit'}

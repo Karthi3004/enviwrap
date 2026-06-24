@@ -12,24 +12,24 @@ const TN_CROPS = [
   'Redgram', 'Banana', 'Coconut', 'Turmeric', 'Ginger', 'Tomato', 'Other',
 ];
 
-const inputClass = 'w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500';
+const inputClass = 'w-full bg-stone-50 border border-stone-300 rounded-lg px-3 py-2 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-emerald-500';
 const selectClass = `${inputClass} cursor-pointer`;
 
 const Field = ({ label, children, hint, required }) => (
   <div>
-    <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1.5">
-      {label} {required && <span className="text-red-400">*</span>}
+    <label className="block text-[10px] font-medium text-stone-500 uppercase tracking-wide mb-1.5">
+      {label} {required && <span className="text-red-700">*</span>}
     </label>
     {children}
-    {hint && <p className="text-[10px] text-gray-600 mt-1">{hint}</p>}
+    {hint && <p className="text-[10px] text-stone-500 mt-1">{hint}</p>}
   </div>
 );
 
 const Section = ({ title, children, tag }) => (
   <div className="mb-6">
     <div className="flex items-center gap-2 mb-3">
-      <h3 className="text-xs font-semibold text-gray-300">{title}</h3>
-      {tag && <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded">NEW — Regrow</span>}
+      <h3 className="text-xs font-semibold text-stone-700">{title}</h3>
+      {tag && <span className="text-[10px] bg-emerald-500/10 text-emerald-700 px-1.5 py-0.5 rounded">NEW — Regrow</span>}
     </div>
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {children}
@@ -107,17 +107,17 @@ export default function BaselinePage() {
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => navigate(`/farms/${farmId}`)} className="text-gray-600 hover:text-gray-300">
+        <button onClick={() => navigate(`/farms/${farmId}`)} className="text-stone-500 hover:text-stone-900">
           <ChevronLeft size={18} />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-white">Baseline Data</h1>
-          <p className="text-gray-500 text-sm">Module 2 — Historical data · 3 years pre-project</p>
+          <h1 className="text-xl font-bold text-stone-900">Baseline Data</h1>
+          <p className="text-stone-500 text-sm">Module 2 — Historical data · 3 years pre-project</p>
         </div>
       </div>
 
       {/* Year tabs */}
-      <div className="flex gap-1 mb-6 bg-gray-900 border border-gray-800 rounded-xl p-1 w-fit">
+      <div className="flex gap-1 mb-6 bg-white border border-stone-200 rounded-xl p-1 w-fit">
         {YEARS.map((y) => {
           const r = records[y];
           return (
@@ -127,12 +127,12 @@ export default function BaselinePage() {
               className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 activeYear === y
                   ? 'bg-emerald-600 text-white'
-                  : 'text-gray-500 hover:text-gray-300'
+                  : 'text-stone-500 hover:text-stone-900'
               }`}
             >
               {y}
               {r?.farmer_otp_attested && (
-                <CheckCircle size={11} className={activeYear === y ? 'text-white/70' : 'text-emerald-500'} />
+                <CheckCircle size={11} className={activeYear === y ? 'text-white/80' : 'text-emerald-500'} />
               )}
             </button>
           );
@@ -140,14 +140,14 @@ export default function BaselinePage() {
       </div>
 
       {isAttested && (
-        <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-4 py-2.5 mb-4 text-sm text-emerald-400">
+        <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-4 py-2.5 mb-4 text-sm text-emerald-700">
           <CheckCircle size={14} />
           Farmer has attested this year's baseline via OTP · {currentRecord?.attestation_method}
         </div>
       )}
 
       <form onSubmit={handleSubmit(onSave)}>
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-8">
+        <div className="bg-white border border-stone-200 rounded-xl p-6 space-y-8">
 
           {/* Crop Info */}
           <Section title="Crop Information">
@@ -494,7 +494,7 @@ export default function BaselinePage() {
         <div className="flex items-center justify-between mt-5">
           <div className="flex items-center gap-2">
             {saved && (
-              <div className="flex items-center gap-1.5 text-emerald-400 text-sm">
+              <div className="flex items-center gap-1.5 text-emerald-700 text-sm">
                 <CheckCircle size={14} />
                 Saved
               </div>
@@ -506,7 +506,7 @@ export default function BaselinePage() {
                 type="button"
                 onClick={onAttest}
                 disabled={attesting}
-                className="flex items-center gap-1.5 text-sm text-emerald-400 border border-emerald-500/30 hover:border-emerald-500/60 px-4 py-2 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 text-sm text-emerald-700 border border-emerald-500/30 hover:border-emerald-500/60 px-4 py-2 rounded-lg transition-colors"
               >
                 {attesting ? 'Attesting...' : '📱 Farmer OTP Attest'}
               </button>

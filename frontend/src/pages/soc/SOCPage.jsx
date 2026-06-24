@@ -4,24 +4,24 @@ import { useForm } from 'react-hook-form';
 import { socAPI } from '../../lib/api';
 import { ChevronLeft, Plus, FlaskConical, CheckCircle, AlertTriangle, Save } from 'lucide-react';
 
-const inputClass = 'w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500';
+const inputClass = 'w-full bg-stone-50 border border-stone-300 rounded-lg px-3 py-2 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-emerald-500';
 const selectClass = `${inputClass} cursor-pointer`;
 
 const Field = ({ label, children, hint, tag }) => (
   <div>
-    <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1.5">
+    <label className="block text-[10px] font-medium text-stone-500 uppercase tracking-wide mb-1.5">
       {label}
-      {tag && <span className="ml-1.5 text-[9px] bg-emerald-500/10 text-emerald-400 px-1 py-0.5 rounded">NEW</span>}
+      {tag && <span className="ml-1.5 text-[9px] bg-emerald-500/10 text-emerald-700 px-1 py-0.5 rounded">NEW</span>}
     </label>
     {children}
-    {hint && <p className="text-[10px] text-gray-600 mt-1">{hint}</p>}
+    {hint && <p className="text-[10px] text-stone-500 mt-1">{hint}</p>}
   </div>
 );
 
 const labStatusColors = {
-  pending: 'bg-amber-500/10 text-amber-400',
-  sent: 'bg-blue-500/10 text-blue-400',
-  received: 'bg-emerald-500/10 text-emerald-400',
+  pending: 'bg-amber-500/10 text-amber-700',
+  sent: 'bg-blue-500/10 text-blue-700',
+  received: 'bg-emerald-500/10 text-emerald-700',
 };
 
 export default function SOCPage() {
@@ -102,12 +102,12 @@ export default function SOCPage() {
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(`/farms/${farmId}`)} className="text-gray-600 hover:text-gray-300">
+          <button onClick={() => navigate(`/farms/${farmId}`)} className="text-stone-500 hover:text-stone-900">
             <ChevronLeft size={18} />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-white">SOC Samples</h1>
-            <p className="text-gray-500 text-sm">Module 3 — NIR + 10% Lab cross-check</p>
+            <h1 className="text-xl font-bold text-stone-900">SOC Samples</h1>
+            <p className="text-stone-500 text-sm">Module 3 — NIR + 10% Lab cross-check</p>
           </div>
         </div>
         <button
@@ -121,86 +121,86 @@ export default function SOCPage() {
 
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
-          <div className="text-2xl font-bold text-white">{samples.length}</div>
-          <div className="text-xs text-gray-500 mt-0.5">Total Samples</div>
+        <div className="bg-white border border-stone-200 rounded-xl p-4 text-center">
+          <div className="text-2xl font-bold text-stone-900">{samples.length}</div>
+          <div className="text-xs text-stone-500 mt-0.5">Total Samples</div>
         </div>
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
-          <div className="text-2xl font-bold text-emerald-400">{crossCheckCount}</div>
-          <div className="text-xs text-gray-500 mt-0.5">Lab Cross-checks</div>
-          <div className="text-[10px] text-gray-600 mt-0.5">Target: {targetCrossCheck} (10%)</div>
+        <div className="bg-white border border-stone-200 rounded-xl p-4 text-center">
+          <div className="text-2xl font-bold text-emerald-700">{crossCheckCount}</div>
+          <div className="text-xs text-stone-500 mt-0.5">Lab Cross-checks</div>
+          <div className="text-[10px] text-stone-500 mt-0.5">Target: {targetCrossCheck} (10%)</div>
         </div>
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 text-center">
-          <div className="text-2xl font-bold text-purple-400">
+        <div className="bg-white border border-stone-200 rounded-xl p-4 text-center">
+          <div className="text-2xl font-bold text-purple-700">
             {samples.filter(s => s.lab_status === 'received').length}
           </div>
-          <div className="text-xs text-gray-500 mt-0.5">Results Received</div>
+          <div className="text-xs text-stone-500 mt-0.5">Results Received</div>
         </div>
       </div>
 
       {/* Sample list */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden mb-6">
+      <div className="bg-white border border-stone-200 rounded-xl overflow-hidden mb-6">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-800">
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Sample Date</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">GPS</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Sub-samples</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">NIR SOC %</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Lab Status</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Lab SOC %</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Cross-check</th>
+            <tr className="border-b border-stone-200">
+              <th className="text-left px-4 py-3 text-xs font-medium text-stone-500">Sample Date</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-stone-500">GPS</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-stone-500">Sub-samples</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-stone-500">NIR SOC %</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-stone-500">Lab Status</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-stone-500">Lab SOC %</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-stone-500">Cross-check</th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <tr key={i} className="border-b border-gray-800/50">
+                <tr key={i} className="border-b border-stone-200">
                   {Array.from({ length: 8 }).map((_, j) => (
-                    <td key={j} className="px-4 py-3"><div className="h-4 bg-gray-800 rounded animate-pulse"></div></td>
+                    <td key={j} className="px-4 py-3"><div className="h-4 bg-stone-50 rounded animate-pulse"></div></td>
                   ))}
                 </tr>
               ))
             ) : samples.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center py-10 text-gray-600">
+                <td colSpan={8} className="text-center py-10 text-stone-500">
                   No samples collected yet. Add the first sample.
                 </td>
               </tr>
             ) : (
               samples.map((s) => (
-                <tr key={s.id} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
-                  <td className="px-4 py-3 text-gray-300">{s.sample_date || '—'}</td>
-                  <td className="px-4 py-3 text-xs font-mono text-gray-500">
+                <tr key={s.id} className="border-b border-stone-200 hover:bg-stone-100/50 transition-colors">
+                  <td className="px-4 py-3 text-stone-700">{s.sample_date || '—'}</td>
+                  <td className="px-4 py-3 text-xs font-mono text-stone-500">
                     {s.sample_gps_lat ? `${Number(s.sample_gps_lat).toFixed(4)}, ${Number(s.sample_gps_lng).toFixed(4)}` : '—'}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs font-medium ${s.sub_sample_count < 5 ? 'text-red-400' : 'text-gray-300'}`}>
+                    <span className={`text-xs font-medium ${s.sub_sample_count < 5 ? 'text-red-700' : 'text-stone-700'}`}>
                       {s.sub_sample_count}
                       {s.sub_sample_count < 5 && <AlertTriangle size={11} className="inline ml-1" />}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-300">{s.nir_soc_pct ? `${s.nir_soc_pct}%` : '—'}</td>
+                  <td className="px-4 py-3 text-stone-700">{s.nir_soc_pct ? `${s.nir_soc_pct}%` : '—'}</td>
                   <td className="px-4 py-3">
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${labStatusColors[s.lab_status] || 'text-gray-500'}`}>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${labStatusColors[s.lab_status] || 'text-stone-500'}`}>
                       {s.lab_status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-300">{s.lab_soc_pct ? `${s.lab_soc_pct}%` : '—'}</td>
+                  <td className="px-4 py-3 text-stone-700">{s.lab_soc_pct ? `${s.lab_soc_pct}%` : '—'}</td>
                   <td className="px-4 py-3">
                     {s.is_lab_crosscheck
-                      ? <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded-full">10% Lab</span>
-                      : <span className="text-[10px] text-gray-600">NIR only</span>
+                      ? <span className="text-[10px] bg-purple-500/10 text-purple-700 px-2 py-0.5 rounded-full">10% Lab</span>
+                      : <span className="text-[10px] text-stone-500">NIR only</span>
                     }
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
-                      <button onClick={() => openEdit(s)} className="text-xs text-gray-500 hover:text-gray-200">Edit</button>
+                      <button onClick={() => openEdit(s)} className="text-xs text-stone-500 hover:text-stone-900">Edit</button>
                       {s.is_lab_crosscheck && s.lab_status !== 'received' && (
                         <button
                           onClick={() => { setShowLabForm(s.id); labReset(); }}
-                          className="text-xs text-emerald-400 hover:text-emerald-300"
+                          className="text-xs text-emerald-700 hover:text-emerald-700"
                         >
                           + Lab Results
                         </button>
@@ -217,12 +217,12 @@ export default function SOCPage() {
       {/* Sample form modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
-              <h2 className="text-sm font-semibold text-white">
+          <div className="bg-white border border-stone-200 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
+              <h2 className="text-sm font-semibold text-stone-900">
                 {editingSample ? 'Edit Sample' : 'Add SOC Sample'}
               </h2>
-              <button onClick={() => { setShowForm(false); setEditingSample(null); }} className="text-gray-600 hover:text-gray-300">✕</button>
+              <button onClick={() => { setShowForm(false); setEditingSample(null); }} className="text-stone-500 hover:text-stone-900">✕</button>
             </div>
             <form onSubmit={handleSubmit(onSave)} className="p-6 space-y-5">
               <div className="grid grid-cols-2 gap-4">
@@ -278,8 +278,8 @@ export default function SOCPage() {
                 )}
               </div>
 
-              <div className="border-t border-gray-800 pt-4">
-                <p className="text-xs font-semibold text-gray-400 mb-3">NIR Results</p>
+              <div className="border-t border-stone-200 pt-4">
+                <p className="text-xs font-semibold text-stone-600 mb-3">NIR Results</p>
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="NIR SOC %">
                     <input {...register('nir_soc_pct', { valueAsNumber: true })} type="number" step="0.001" className={inputClass} placeholder="1.234" />
@@ -290,14 +290,14 @@ export default function SOCPage() {
                 </div>
               </div>
 
-              <div className="border-t border-gray-800 pt-4">
+              <div className="border-t border-stone-200 pt-4">
                 <div className="flex items-center gap-2 mb-3">
                   <input {...register('is_lab_crosscheck')} type="checkbox" id="lab_check" className="accent-emerald-500" />
-                  <label htmlFor="lab_check" className="text-xs text-gray-300">This is a 10% lab cross-check sample</label>
+                  <label htmlFor="lab_check" className="text-xs text-stone-700">This is a 10% lab cross-check sample</label>
                 </div>
                 {watched.is_lab_crosscheck && (
                   <div className="bg-purple-500/5 border border-purple-500/20 rounded-lg p-3">
-                    <p className="text-xs text-purple-400 mb-2">Lab results can be entered after the sample is sent and received.</p>
+                    <p className="text-xs text-purple-700 mb-2">Lab results can be entered after the sample is sent and received.</p>
                     <Field label="Lab Status">
                       <select {...register('lab_status')} className={selectClass}>
                         <option value="pending">Pending (not yet sent)</option>
@@ -309,8 +309,8 @@ export default function SOCPage() {
                 )}
               </div>
 
-              <div className="border-t border-gray-800 pt-4">
-                <p className="text-xs font-semibold text-gray-400 mb-3">Satellite Cross-check</p>
+              <div className="border-t border-stone-200 pt-4">
+                <p className="text-xs font-semibold text-stone-600 mb-3">Satellite Cross-check</p>
                 <div className="grid grid-cols-2 gap-4">
                   <Field label="Satellite Land Cover">
                     <input {...register('satellite_land_cover')} className={inputClass} placeholder="Auto-fetched from Sentinel-2" />
@@ -325,7 +325,7 @@ export default function SOCPage() {
               </div>
 
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="text-sm text-gray-500 hover:text-gray-300 px-4 py-2">Cancel</button>
+                <button type="button" onClick={() => setShowForm(false)} className="text-sm text-stone-500 hover:text-stone-900 px-4 py-2">Cancel</button>
                 <button type="submit" disabled={saving} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-medium px-5 py-2 rounded-lg">
                   <Save size={14} />
                   {saving ? 'Saving...' : 'Save Sample'}
@@ -339,10 +339,10 @@ export default function SOCPage() {
       {/* Lab results modal */}
       {showLabForm && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-md">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
-              <h2 className="text-sm font-semibold text-white">Enter Lab Results</h2>
-              <button onClick={() => setShowLabForm(null)} className="text-gray-600 hover:text-gray-300">✕</button>
+          <div className="bg-white border border-stone-200 rounded-xl w-full max-w-md">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
+              <h2 className="text-sm font-semibold text-stone-900">Enter Lab Results</h2>
+              <button onClick={() => setShowLabForm(null)} className="text-stone-500 hover:text-stone-900">✕</button>
             </div>
             <form onSubmit={labSubmit(onLabSave)} className="p-6 space-y-4">
               <Field label="Lab SOC %">
@@ -355,7 +355,7 @@ export default function SOCPage() {
                 <input {...labReg('fine_bulk_density', { valueAsNumber: true })} type="number" step="0.001" className={inputClass} placeholder="1.280" />
               </Field>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowLabForm(null)} className="text-sm text-gray-500 hover:text-gray-300">Cancel</button>
+                <button type="button" onClick={() => setShowLabForm(null)} className="text-sm text-stone-500 hover:text-stone-900">Cancel</button>
                 <button type="submit" className="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-5 py-2 rounded-lg">Save Lab Results</button>
               </div>
             </form>

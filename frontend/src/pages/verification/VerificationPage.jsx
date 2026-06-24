@@ -4,12 +4,12 @@ import { verificationAPI } from '../../lib/api';
 import { CheckSquare, Plus, Download, Calendar, Save } from 'lucide-react';
 
 const statusColors = {
-  open: 'bg-blue-500/10 text-blue-400',
-  'vvb-review': 'bg-amber-500/10 text-amber-400',
-  closed: 'bg-emerald-500/10 text-emerald-400',
+  open: 'bg-blue-500/10 text-blue-700',
+  'vvb-review': 'bg-amber-500/10 text-amber-700',
+  closed: 'bg-emerald-500/10 text-emerald-700',
 };
 
-const inputClass = 'w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500';
+const inputClass = 'w-full bg-stone-50 border border-stone-300 rounded-lg px-3 py-2 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-emerald-500';
 
 export default function VerificationPage() {
   const [periods, setPeriods] = useState([]);
@@ -62,11 +62,11 @@ export default function VerificationPage() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-white flex items-center gap-2">
-            <CheckSquare size={20} className="text-emerald-400" />
+          <h1 className="text-xl font-bold text-stone-900 flex items-center gap-2">
+            <CheckSquare size={20} className="text-emerald-700" />
             Verification Periods
           </h1>
-          <p className="text-gray-500 text-sm mt-0.5">Module 6 — VVB audit periods and data export</p>
+          <p className="text-stone-500 text-sm mt-0.5">Module 6 — VVB audit periods and data export</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
@@ -81,26 +81,26 @@ export default function VerificationPage() {
       <div className="space-y-3">
         {loading ? (
           Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="bg-gray-900 border border-gray-800 rounded-xl p-5 animate-pulse h-24"></div>
+            <div key={i} className="bg-white border border-stone-200 rounded-xl p-5 animate-pulse h-24"></div>
           ))
         ) : periods.length === 0 ? (
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-12 text-center">
-            <Calendar size={32} className="text-gray-700 mx-auto mb-3" />
-            <p className="text-gray-400 font-medium">No verification periods yet</p>
-            <p className="text-gray-600 text-sm mt-1">Create a period to track a verification cycle</p>
+          <div className="bg-white border border-stone-200 rounded-xl p-12 text-center">
+            <Calendar size={32} className="text-stone-600 mx-auto mb-3" />
+            <p className="text-stone-600 font-medium">No verification periods yet</p>
+            <p className="text-stone-500 text-sm mt-1">Create a period to track a verification cycle</p>
           </div>
         ) : (
           periods.map((p) => (
-            <div key={p.id} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
+            <div key={p.id} className="bg-white border border-stone-200 rounded-xl p-5">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2.5 mb-1">
-                    <h3 className="text-sm font-semibold text-white">{p.period_name}</h3>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${statusColors[p.status] || 'bg-gray-700 text-gray-400'}`}>
+                    <h3 className="text-sm font-semibold text-stone-900">{p.period_name}</h3>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${statusColors[p.status] || 'bg-stone-100 text-stone-600'}`}>
                       {p.status}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-stone-500">
                     {p.start_date} → {p.end_date}
                   </p>
                   <div className="flex gap-4 mt-3">
@@ -111,26 +111,26 @@ export default function VerificationPage() {
                       ['VCUs Issued', p.total_vcus_issued?.toFixed(0)],
                     ].map(([label, value]) => (
                       <div key={label}>
-                        <div className="text-sm font-bold text-white">{value || '—'}</div>
-                        <div className="text-[10px] text-gray-600">{label}</div>
+                        <div className="text-sm font-bold text-stone-900">{value || '—'}</div>
+                        <div className="text-[10px] text-stone-500">{label}</div>
                       </div>
                     ))}
                   </div>
                   {p.vvb_name && (
-                    <p className="text-xs text-gray-600 mt-2">VVB: {p.vvb_name} {p.vvb_audit_date && `· Audit: ${p.vvb_audit_date}`}</p>
+                    <p className="text-xs text-stone-500 mt-2">VVB: {p.vvb_name} {p.vvb_audit_date && `· Audit: ${p.vvb_audit_date}`}</p>
                   )}
                 </div>
                 <button
                   onClick={() => exportVVB(p.id, p.period_name)}
                   disabled={exporting === p.id}
-                  className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-emerald-400 border border-gray-700 hover:border-emerald-500/40 px-3 py-1.5 rounded-lg transition-colors"
+                  className="flex items-center gap-1.5 text-xs text-stone-600 hover:text-emerald-700 border border-stone-300 hover:border-emerald-500/40 px-3 py-1.5 rounded-lg transition-colors"
                 >
                   <Download size={12} />
                   {exporting === p.id ? 'Exporting...' : 'VVB Export'}
                 </button>
               </div>
               {p.notes && (
-                <p className="text-xs text-gray-600 mt-3 pt-3 border-t border-gray-800">{p.notes}</p>
+                <p className="text-xs text-stone-500 mt-3 pt-3 border-t border-stone-200">{p.notes}</p>
               )}
             </div>
           ))
@@ -140,40 +140,40 @@ export default function VerificationPage() {
       {/* New period modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-xl w-full max-w-lg">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
-              <h2 className="text-sm font-semibold text-white">New Verification Period</h2>
-              <button onClick={() => setShowForm(false)} className="text-gray-600 hover:text-gray-300">✕</button>
+          <div className="bg-white border border-stone-200 rounded-xl w-full max-w-lg">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
+              <h2 className="text-sm font-semibold text-stone-900">New Verification Period</h2>
+              <button onClick={() => setShowForm(false)} className="text-stone-500 hover:text-stone-900">✕</button>
             </div>
             <form onSubmit={handleSubmit(onSave)} className="p-6 space-y-4">
               <div>
-                <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1.5">Period Name</label>
+                <label className="block text-[10px] font-medium text-stone-500 uppercase tracking-wide mb-1.5">Period Name</label>
                 <input {...register('period_name', { required: true })} className={inputClass} placeholder="e.g. Verification Period 1 (2024–2025)" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1.5">Start Date</label>
+                  <label className="block text-[10px] font-medium text-stone-500 uppercase tracking-wide mb-1.5">Start Date</label>
                   <input {...register('start_date', { required: true })} type="date" className={inputClass} />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1.5">End Date</label>
+                  <label className="block text-[10px] font-medium text-stone-500 uppercase tracking-wide mb-1.5">End Date</label>
                   <input {...register('end_date', { required: true })} type="date" className={inputClass} />
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1.5">VVB Name</label>
+                <label className="block text-[10px] font-medium text-stone-500 uppercase tracking-wide mb-1.5">VVB Name</label>
                 <input {...register('vvb_name')} className={inputClass} placeholder="e.g. Verra Validation Body" />
               </div>
               <div>
-                <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1.5">VVB Audit Date</label>
+                <label className="block text-[10px] font-medium text-stone-500 uppercase tracking-wide mb-1.5">VVB Audit Date</label>
                 <input {...register('vvb_audit_date')} type="date" className={inputClass} />
               </div>
               <div>
-                <label className="block text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1.5">Notes</label>
+                <label className="block text-[10px] font-medium text-stone-500 uppercase tracking-wide mb-1.5">Notes</label>
                 <textarea {...register('notes')} rows={2} className={`${inputClass} resize-none`} placeholder="Optional notes..." />
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="text-sm text-gray-500 hover:text-gray-300 px-4 py-2">Cancel</button>
+                <button type="button" onClick={() => setShowForm(false)} className="text-sm text-stone-500 hover:text-stone-900 px-4 py-2">Cancel</button>
                 <button type="submit" disabled={saving} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-medium px-5 py-2 rounded-lg">
                   <Save size={14} />
                   {saving ? 'Creating...' : 'Create Period'}
