@@ -2,6 +2,10 @@ import { supabase } from '../db/supabase.js';
 import { generateFarmId, generateClusterId, calculatePolygonArea } from '../utils/helpers.js';
 import { runQAQCRules } from '../utils/qaqcRules.js';
 
+// Safe number parser
+const num = (v) => { const n = parseFloat(v); return isNaN(n) ? null : n; };
+const numOr0 = (v) => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+
 export const listFarms = async (req, res, next) => {
   try {
     const { district, cluster_id, status, page = 1, limit = 50 } = req.query;
@@ -27,19 +31,20 @@ export const getFarm = async (req, res, next) => {
 
 export const createFarm = async (req, res, next) => {
   try {
-    const body = req.body;
+    const b = req.body;
 
-    // Area calculations
-    const coords = body.gps_boundary_coordinates || [];
-    const field_area_ha = coords.length >= 3 ? calculatePolygonArea(coords) : (body.field_area_ha || null);
-    const field_area_acres = body.field_area_acres || (field_area_ha ? field_area_ha * 2.47105 : null);
-    const excluded_acres = parseFloat(body.excluded_area_acres) || 0;
-    const net_eligible_area_acres = field_area_acres !== null ? Math.max(0, field_area_acres - excluded_acres) : null;
-    const net_eligible_area_ha = net_eligible_area_acres !== null ? net_eligible_area_acres / 2.47105 : null;
+    // Area calculations — all safe
+    const coords = Array.isArray(b.gps_boundary_coordinates) ? b.gps_boundary_coordinates : [];
+    const field_area_ha = coords.length >= 3 ? calculatePolygonArea(coords) : (num(b.field_area_ha) || null);
+    const field_area_acres = num(b.field_area_acres) || (field_area_ha != null ? field_area_ha * 2.47105 : null);
+    const excl_acres = numOr0(b.excluded_area_acres);
+    const excl_ha = excl_acres / 2.47105;
+    const net_acres = field_area_acres != null ? Math.max(0, field_area_acres - excl_acres) : null;
+    const net_ha = net_acres != null ? net_acres / 2.47105 : null;
 
-    // Farm ID serial
+    // Farm ID
     const { count } = await supabase.from('farms').select('*', { count: 'exact', head: true });
-    const district = body.district || 'TN';
+    const district = b.district || 'TN';
     const farm_id = generateFarmId(district, (count || 0) + 1);
 
     // Cluster
@@ -48,56 +53,47 @@ export const createFarm = async (req, res, next) => {
 
     const farmData = {
       farm_id,
-      farmer_full_name:         body.farmer_full_name || null,
-      farmer_phone:             body.farmer_phone || null,
-      aadhaar_last4:            body.aadhaar_last4 || null,
-      village:                  body.village || null,
-      block_taluk:              body.block_taluk || null,
-      district:                 body.district || null,
-      state:                    'Tamil Nadu',
+      farmer_full_name:           b.farmer_full_name || null,
+      farmer_phone:               b.farmer_phone || null,
+      aadhaar_last4:              b.aadhaar_last4 || null,
+      village:                    b.village || null,
+      block_taluk:                b.block_taluk || null,
+      district:                   b.district || null,
+      state:                      'Tamil Nadu',
       cluster_id,
-      enrolment_date:           new Date().toISOString().split('T')[0],
-      field_officer_id:         req.user.id,
-      field_officer_name:       req.user.user_metadata?.name || req.user.email,
-      field_officer_name_manual: body.field_officer_name_manual || null,
-      surveyor_name:            body.surveyor_name || null,
-
-      // Boundary
-      gps_boundary_coordinates: coords.length ? coords : null,
+      enrolment_date:             new Date().toISOString().split('T')[0],
+      field_officer_id:           req.user.id,
+      field_officer_name:         req.user.user_metadata?.name || req.user.email,
+      field_officer_name_manual:  b.field_officer_name_manual || null,
+      surveyor_name:              b.surveyor_name || null,
+      gps_boundary_coordinates:   coords.length ? coords : null,
       field_area_ha,
       field_area_acres,
-      gps_accuracy_metres:      body.gps_accuracy_metres || null,
-      boundary_satellite_match: body.boundary_satellite_match || null,
-      boundary_discrepancy_note: body.boundary_discrepancy_note || null,
-      overlap_detected:         body.overlap_detected === 'true' || body.overlap_detected === true,
-      non_ag_land_exclusion:    excluded_acres > 0,
-      excluded_area_ha:         excluded_acres / 2.47105,
-      excluded_area_acres,
-      excluded_area_type:       body.excluded_area_type || null,
-      net_eligible_area_ha,
-      net_eligible_area_acres,
-      cadastral_reference:      body.cadastral_reference || null,
-      land_type:                body.land_type || null,
-
-      // Map state
-      map_center:               body.map_center || null,
-      map_zoom:                 body.map_zoom || null,
-
-      // Documents
-      aadhaar_file_url:         body.aadhaar_file_url || null,
-      patta_file_url:           body.patta_file_url || null,
-
-      // Characteristics
-      primary_crop:             body.primary_crop || null,
-      secondary_crop:           body.secondary_crop || null,
-      crop_system_type:         body.crop_system_type || null,
-      irrigation_source:        body.irrigation_source || null,
-      slope_class:              body.slope_class || null,
-      ipcc_climate_zone:        body.ipcc_climate_zone || null,
-      fao_soil_group:           body.fao_soil_group || null,
-
-      status:                   body.status || 'draft',
-      data_completeness_pct:    0,
+      gps_accuracy_metres:        num(b.gps_accuracy_metres),
+      boundary_satellite_match:   b.boundary_satellite_match || null,
+      boundary_discrepancy_note:  b.boundary_discrepancy_note || null,
+      overlap_detected:           b.overlap_detected === 'true' || b.overlap_detected === true,
+      non_ag_land_exclusion:      excl_acres > 0,
+      excluded_area_ha:           excl_ha,
+      excluded_area_acres:        excl_acres,
+      excluded_area_type:         b.excluded_area_type || null,
+      net_eligible_area_ha:       net_ha,
+      net_eligible_area_acres:    net_acres,
+      cadastral_reference:        b.cadastral_reference || null,
+      land_type:                  b.land_type || null,
+      map_center:                 b.map_center || null,
+      map_zoom:                   b.map_zoom ? parseInt(b.map_zoom) : null,
+      aadhaar_file_url:           b.aadhaar_file_url || null,
+      patta_file_url:             b.patta_file_url || null,
+      primary_crop:               b.primary_crop || null,
+      secondary_crop:             b.secondary_crop || null,
+      crop_system_type:           b.crop_system_type || null,
+      irrigation_source:          b.irrigation_source || null,
+      slope_class:                b.slope_class || null,
+      ipcc_climate_zone:          b.ipcc_climate_zone || null,
+      fao_soil_group:             b.fao_soil_group || null,
+      status:                     b.status || 'draft',
+      data_completeness_pct:      0,
     };
 
     const { data, error } = await supabase.from('farms').insert(farmData).select().single();
@@ -124,11 +120,9 @@ export const createFarm = async (req, res, next) => {
 
 export const updateFarm = async (req, res, next) => {
   try {
-    const body = req.body;
-
+    const b = req.body;
     const updates = { updated_at: new Date().toISOString() };
 
-    // Only update fields that are present in the body
     const simpleFields = [
       'farmer_full_name','farmer_phone','aadhaar_last4','village','block_taluk',
       'district','field_officer_name_manual','surveyor_name',
@@ -138,48 +132,48 @@ export const updateFarm = async (req, res, next) => {
       'aadhaar_file_url','patta_file_url','farm_photos_urls','satellite_image_url_uploaded',
       'map_center','map_zoom','status',
     ];
-    simpleFields.forEach(f => { if (body[f] !== undefined) updates[f] = body[f]; });
+    simpleFields.forEach(f => {
+      if (b[f] !== undefined) updates[f] = b[f] === '' ? null : b[f];
+    });
 
-    // Overlap
-    if (body.overlap_detected !== undefined) {
-      updates.overlap_detected = body.overlap_detected === 'true' || body.overlap_detected === true;
+    if (b.overlap_detected !== undefined) {
+      updates.overlap_detected = b.overlap_detected === 'true' || b.overlap_detected === true;
     }
 
-    // Recalculate areas if boundary or exclusion changes
-    const coords = body.gps_boundary_coordinates;
+    // Boundary
+    const coords = Array.isArray(b.gps_boundary_coordinates) ? b.gps_boundary_coordinates : null;
     if (coords) {
       updates.gps_boundary_coordinates = coords;
       updates.field_area_ha = calculatePolygonArea(coords);
       updates.field_area_acres = updates.field_area_ha * 2.47105;
     }
-    if (body.gps_accuracy_metres !== undefined) updates.gps_accuracy_metres = body.gps_accuracy_metres;
-    if (body.map_center !== undefined) updates.map_center = body.map_center;
-    if (body.map_zoom !== undefined) updates.map_zoom = body.map_zoom;
+    if (b.gps_accuracy_metres !== undefined) updates.gps_accuracy_metres = num(b.gps_accuracy_metres);
+    if (b.field_area_acres !== undefined && !coords) updates.field_area_acres = num(b.field_area_acres);
 
-    const excluded_acres = body.excluded_area_acres !== undefined
-      ? parseFloat(body.excluded_area_acres) || 0
-      : null;
-    if (excluded_acres !== null) {
-      updates.excluded_area_acres = excluded_acres;
-      updates.excluded_area_ha = excluded_acres / 2.47105;
-      updates.non_ag_land_exclusion = excluded_acres > 0;
+    // Excluded area
+    const has_excl = b.excluded_area_acres !== undefined;
+    const excl_acres = has_excl ? numOr0(b.excluded_area_acres) : null;
+    if (excl_acres !== null) {
+      updates.excluded_area_acres = excl_acres;
+      updates.excluded_area_ha = excl_acres / 2.47105;
+      updates.non_ag_land_exclusion = excl_acres > 0;
     }
 
-    // Net eligible — recalculate if area or exclusion changed
-    if (updates.field_area_acres !== undefined || excluded_acres !== null) {
-      // Get current farm to fill in missing values
-      const { data: current } = await supabase.from('farms').select('field_area_acres,excluded_area_acres').eq('id', req.params.id).single();
-      const fa = updates.field_area_acres ?? current?.field_area_acres ?? 0;
-      const ea = excluded_acres ?? current?.excluded_area_acres ?? 0;
+    // Net eligible
+    if (updates.field_area_acres !== undefined || excl_acres !== null) {
+      const { data: current } = await supabase
+        .from('farms').select('field_area_acres,excluded_area_acres').eq('id', req.params.id).single();
+      const fa = updates.field_area_acres ?? num(current?.field_area_acres) ?? 0;
+      const ea = excl_acres ?? numOr0(current?.excluded_area_acres);
       updates.net_eligible_area_acres = Math.max(0, fa - ea);
       updates.net_eligible_area_ha = updates.net_eligible_area_acres / 2.47105;
     }
 
-    // Completeness
-    if (body.status === 'enrolled') {
+    // Completeness on enrol
+    if (b.status === 'enrolled') {
       const mandatory = ['farmer_full_name','farmer_phone','aadhaar_last4','village',
         'gps_boundary_coordinates','land_type','primary_crop','crop_system_type','irrigation_source'];
-      const allFields = { ...body, ...updates };
+      const allFields = { ...b, ...updates };
       const filled = mandatory.filter(k => allFields[k] != null && allFields[k] !== '').length;
       updates.data_completeness_pct = Math.round((filled / mandatory.length) * 100);
     }
@@ -214,9 +208,7 @@ export const uploadBoundaryPhotos = async (req, res, next) => {
 };
 
 export const checkOverlap = async (req, res, next) => {
-  try {
-    res.json({ overlap: false, overlapping_farms: [], note: 'PostGIS ST_Intersects required for precise check' });
-  } catch (err) { next(err); }
+  res.json({ overlap: false, overlapping_farms: [], note: 'PostGIS required for precise check' });
 };
 
 export const getFarmQAQC = async (req, res, next) => {
