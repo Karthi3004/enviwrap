@@ -185,8 +185,15 @@ export const uploadFile = async (req, res, next) => {
     });
     if (upErr) throw upErr;
 
+    // Use public URL (buckets are set to public)
     const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
-    const url = urlData.publicUrl;
+    let url = urlData.publicUrl;
+    
+    // Fallback: create signed URL valid for 10 years if public URL doesn't work
+    if (!url) {
+      const { data: signed } = await supabase.storage.from(bucket).createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      url = signed?.signedUrl;
+    }
 
     // Save URL back to farm record
     const colMap = { aadhaar: 'aadhaar_file_url', patta: 'patta_file_url' };

@@ -69,29 +69,41 @@ const FileUpload = ({ label, accept, value, onChange, hint, farmId, fileType }) 
     if (!file) { onChange(null); return; }
     // Always store file object for display
     onChange({ name: file.name, uploading: true });
-    // If we have a farmId, upload immediately
+    // Must save the farm first to get a farmId before uploading
     if (farmId) {
       setUploading(true);
       try {
         const reader = new FileReader();
         reader.onload = async (e) => {
-          const base64 = e.target.result.split(',')[1];
-          const res = await farmAPI.uploadFile(farmId, fileType, base64, file.name, file.type);
-          onChange({ name: file.name, url: res.data.url });
+          try {
+            const base64 = e.target.result.split(',')[1];
+            const res = await farmAPI.uploadFile(farmId, fileType, base64, file.name, file.type);
+            if (res.data?.url) {
+              onChange({ name: file.name, url: res.data.url });
+            } else {
+              onChange({ name: file.name, error: true });
+              alert('Upload succeeded but no URL returned');
+            }
+          } catch (uploadErr) {
+            console.error('Upload failed:', uploadErr?.response?.data || uploadErr);
+            onChange({ name: file.name, error: true });
+            alert(`Upload failed: ${uploadErr?.response?.data?.error || uploadErr.message}`);
+          } finally {
+            setUploading(false);
+          }
         };
         reader.readAsDataURL(file);
       } catch (err) {
-        console.error('Upload failed:', err);
+        console.error('FileReader failed:', err);
         onChange({ name: file.name, error: true });
-      } finally {
         setUploading(false);
       }
     } else {
-      // No farmId yet — store file for upload after farm is created
+      // No farmId yet — store file locally, will upload when Save is pressed
       const reader = new FileReader();
       reader.onload = (e) => {
         const base64 = e.target.result.split(',')[1];
-        onChange({ name: file.name, base64, mimeType: file.type, file });
+        onChange({ name: file.name + ' (pending — press Save to upload)', base64, mimeType: file.type, file });
       };
       reader.readAsDataURL(file);
     }
