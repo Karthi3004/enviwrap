@@ -60,9 +60,43 @@ function calcAreaAcres(points) {
   return Math.abs(area * R * R / 2) / 4046.856;
 }
 
-// ── File Upload Component ──
-const FileUpload = ({ label, accept, value, onChange, hint }) => {
+// ── File Upload Component — uploads to Supabase Storage ──
+const FileUpload = ({ label, accept, value, onChange, hint, farmId, fileType }) => {
   const ref = useRef();
+  const [uploading, setUploading] = useState(false);
+
+  const handleFile = async (file) => {
+    if (!file) { onChange(null); return; }
+    // Always store file object for display
+    onChange({ name: file.name, uploading: true });
+    // If we have a farmId, upload immediately
+    if (farmId) {
+      setUploading(true);
+      try {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const base64 = e.target.result.split(',')[1];
+          const res = await farmAPI.uploadFile(farmId, fileType, base64, file.name, file.type);
+          onChange({ name: file.name, url: res.data.url });
+        };
+        reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Upload failed:', err);
+        onChange({ name: file.name, error: true });
+      } finally {
+        setUploading(false);
+      }
+    } else {
+      // No farmId yet — store file for upload after farm is created
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target.result.split(',')[1];
+        onChange({ name: file.name, base64, mimeType: file.type, file });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div>
       <label className="block text-xs font-medium text-gray-400 mb-1.5">{label}</label>
@@ -70,7 +104,10 @@ const FileUpload = ({ label, accept, value, onChange, hint }) => {
         <div className="flex items-center gap-2 bg-gray-800 border border-emerald-500/40 rounded-xl px-3 py-2.5">
           <FileText size={14} className="text-emerald-400 flex-shrink-0" />
           <span className="text-xs text-gray-300 truncate flex-1">{value.name || value}</span>
-          <button type="button" onClick={() => onChange(null)} className="text-gray-600 hover:text-red-400 p-1">
+          {uploading && <Loader size={12} className="animate-spin text-emerald-400 flex-shrink-0"/>}
+          {value.url && <a href={value.url} target="_blank" rel="noreferrer" className="text-[10px] text-emerald-400 flex-shrink-0">View</a>}
+          {value.error && <span className="text-[10px] text-red-400 flex-shrink-0">Failed</span>}
+          <button type="button" onClick={() => onChange(null)} className="text-gray-600 hover:text-red-400 p-1 flex-shrink-0">
             <X size={13} />
           </button>
         </div>
@@ -81,7 +118,7 @@ const FileUpload = ({ label, accept, value, onChange, hint }) => {
         </button>
       )}
       <input ref={ref} type="file" accept={accept} className="hidden"
-        onChange={e => onChange(e.target.files[0] || null)} />
+        onChange={e => handleFile(e.target.files[0] || null)} />
       {hint && <p className="text-[10px] text-gray-600 mt-1">{hint}</p>}
     </div>
   );
@@ -436,25 +473,62 @@ export default function FarmEnrolPage() {
       map_zoom:                 boundaryData?.map_zoom || null,
       excluded_area_acres:      excl,
       excluded_area_ha:         excl / 2.47105,
+      aadhaar_file_url:         aadhaarFile?.url || null,
+      patta_file_url:           pattaFile?.url   || null,
     };
+  };
+
+  // Upload a pending file (base64) to Supabase Storage after farm exists
+  const uploadPendingFile = async (fid, fileObj, fileType) => {
+    if (!fileObj || fileObj.url || !fileObj.base64) return fileObj?.url || null;
+    try {
+      const res = await farmAPI.uploadFile(fid, fileType, fileObj.base64, fileObj.name, fileObj.mimeType);
+      return res.data.url;
+    } catch (err) {
+      console.error('File upload failed:', err);
+      return null;
+    }
   };
 
   const saveToSupabase = async (status = 'draft') => {
     setSaving(true);
     try {
       const payload = { ...buildPayload(), status };
-      let id = farmDbId;
-      if (id) {
-        await farmAPI.update(id, payload);
+      let fid = farmDbId;
+
+      if (fid) {
+        await farmAPI.update(fid, payload);
       } else {
         const res = await farmAPI.create(payload);
-        id = res.data.farm?.id;
-        setFarmDbId(id);
+        fid = res.data.farm?.id;
+        setFarmDbId(fid);
         setFarmCode(res.data.farm?.farm_id);
       }
+
+      // Upload pending files now that we have a farm ID
+      let aadhaarUrl = aadhaarFile?.url || null;
+      let pattaUrl   = pattaFile?.url   || null;
+
+      if (aadhaarFile?.base64) {
+        aadhaarUrl = await uploadPendingFile(fid, aadhaarFile, 'aadhaar');
+        if (aadhaarUrl) setAadhaarFile({ name: aadhaarFile.name, url: aadhaarUrl });
+      }
+      if (pattaFile?.base64) {
+        pattaUrl = await uploadPendingFile(fid, pattaFile, 'patta');
+        if (pattaUrl) setPattaFile({ name: pattaFile.name, url: pattaUrl });
+      }
+
+      // Save URLs back to farm record if newly uploaded
+      if (aadhaarUrl || pattaUrl) {
+        await farmAPI.update(fid, {
+          ...(aadhaarUrl ? { aadhaar_file_url: aadhaarUrl } : {}),
+          ...(pattaUrl   ? { patta_file_url:   pattaUrl   } : {}),
+        });
+      }
+
       setSavedFeedback(true);
       setTimeout(() => setSavedFeedback(false), 2000);
-      return id;
+      return fid;
     } catch (err) {
       alert(err.response?.data?.error || 'Save failed — check your connection');
     } finally {
@@ -556,8 +630,8 @@ export default function FarmEnrolPage() {
             </Field>
             <div className="border-t border-gray-800 pt-4 space-y-3">
               <p className="text-xs font-semibold text-gray-400">Document Uploads</p>
-              <FileUpload label="Aadhaar Card" accept="image/*,.pdf" value={aadhaarFile} onChange={setAadhaarFile} hint="Image or PDF"/>
-              <FileUpload label="Patta / Chitta" accept="image/*,.pdf" value={pattaFile} onChange={setPattaFile} hint="Image or PDF"/>
+              <FileUpload label="Aadhaar Card" accept="image/*,.pdf" value={aadhaarFile} onChange={setAadhaarFile} hint="Image or PDF" farmId={farmDbId} fileType="aadhaar"/>
+              <FileUpload label="Patta / Chitta" accept="image/*,.pdf" value={pattaFile} onChange={setPattaFile} hint="Image or PDF" farmId={farmDbId} fileType="patta"/>
             </div>
           </div>
         )}
@@ -733,8 +807,8 @@ export default function FarmEnrolPage() {
                 ['Net Eligible', netEligibleAcres !== null ? `${netEligibleAcres.toFixed(4)} ac` : '—'],
                 ['GPS Points', boundaryData?.gps_boundary_coordinates?.length || '—'],
                 ['GPS Accuracy', boundaryData?.gps_accuracy_metres ? `±${boundaryData.gps_accuracy_metres}m` : '—'],
-                ['Aadhaar Upload', aadhaarFile ? aadhaarFile.name : '—'],
-                ['Patta Upload', pattaFile ? pattaFile.name : '—'],
+                ['Aadhaar Upload', aadhaarFile ? (aadhaarFile.url ? '✓ Uploaded' : aadhaarFile.name) : '—'],
+                ['Patta Upload', pattaFile ? (pattaFile.url ? '✓ Uploaded' : pattaFile.name) : '—'],
               ].map(([label, value]) => (
                 <div key={label} className="flex justify-between py-2 border-b border-gray-800/60">
                   <span className="text-xs text-gray-500">{label}</span>
