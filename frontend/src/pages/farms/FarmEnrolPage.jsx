@@ -5,7 +5,7 @@ import { farmAPI } from '../../lib/api';
 import {
   ChevronLeft, ChevronRight, CheckCircle, AlertCircle,
   Satellite, Navigation, Undo2, Play, Plus, CheckCircle2,
-  Map, Upload, X, FileText, Save, Loader
+  Map, Upload, X, FileText, Save, Loader, Image
 } from 'lucide-react';
 
 const STEPS = [
@@ -389,6 +389,7 @@ export default function FarmEnrolPage() {
   const [boundaryData, setBoundaryData] = useState(null);
   const [aadhaarFile, setAadhaarFile] = useState(null);
   const [pattaFile, setPattaFile] = useState(null);
+  const [farmPhotos, setFarmPhotos] = useState([]); // array of {name, url, base64, mimeType}
   const navigate = useNavigate();
 
   const { register, watch, getValues, setValue, reset } = useForm({
@@ -439,6 +440,7 @@ export default function FarmEnrolPage() {
         // Restore file URLs as display names
         if (farm.aadhaar_file_url) setAadhaarFile({ name: 'Aadhaar (saved)', url: farm.aadhaar_file_url });
         if (farm.patta_file_url)   setPattaFile({ name: 'Patta/Chitta (saved)', url: farm.patta_file_url });
+        if (farm.farm_photos_urls?.length) setFarmPhotos(farm.farm_photos_urls.map(url => ({ url, name: 'Photo (saved)' })));
       } catch (err) { console.error('Failed to load farm:', err); }
       finally { setLoadingFarm(false); }
     };
@@ -475,6 +477,7 @@ export default function FarmEnrolPage() {
       excluded_area_ha:         excl / 2.47105,
       aadhaar_file_url:         aadhaarFile?.url || null,
       patta_file_url:           pattaFile?.url   || null,
+      farm_photos_urls:         farmPhotos.filter(p => p.url).map(p => p.url),
     };
   };
 
@@ -518,7 +521,22 @@ export default function FarmEnrolPage() {
         if (pattaUrl) setPattaFile({ name: pattaFile.name, url: pattaUrl });
       }
 
-      // Save URLs back to farm record if newly uploaded
+      // Upload pending farm photos
+      const pendingPhotos = farmPhotos.filter(p => p.base64 && !p.url);
+      for (const photo of pendingPhotos) {
+        try {
+          const res = await farmAPI.uploadFile(fid, 'photo', photo.base64, photo.name, photo.mimeType);
+          photo.url = res.data.url;
+          delete photo.base64;
+        } catch (err) { console.error('Photo upload failed:', err); }
+      }
+      if (pendingPhotos.length > 0) {
+        const allUrls = farmPhotos.filter(p => p.url).map(p => p.url);
+        await farmAPI.update(fid, { farm_photos_urls: allUrls });
+        setFarmPhotos(farmPhotos.map(p => ({ name: p.name, url: p.url })));
+      }
+
+      // Save document URLs back to farm record
       if (aadhaarUrl || pattaUrl) {
         await farmAPI.update(fid, {
           ...(aadhaarUrl ? { aadhaar_file_url: aadhaarUrl } : {}),
@@ -632,6 +650,54 @@ export default function FarmEnrolPage() {
               <p className="text-xs font-semibold text-gray-400">Document Uploads</p>
               <FileUpload label="Aadhaar Card" accept="image/*,.pdf" value={aadhaarFile} onChange={setAadhaarFile} hint="Image or PDF" farmId={farmDbId} fileType="aadhaar"/>
               <FileUpload label="Patta / Chitta" accept="image/*,.pdf" value={pattaFile} onChange={setPattaFile} hint="Image or PDF" farmId={farmDbId} fileType="patta"/>
+
+              {/* Farm Photos — multiple */}
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1.5">Farm Photos (up to 5)</label>
+                <div className="space-y-2">
+                  {farmPhotos.map((photo, i) => (
+                    <div key={i} className="flex items-center gap-2 bg-gray-800 border border-emerald-500/40 rounded-xl px-3 py-2">
+                      <Image size={13} className="text-emerald-400 flex-shrink-0"/>
+                      <span className="text-xs text-gray-300 truncate flex-1">{photo.name}</span>
+                      {photo.url
+                        ? <a href={photo.url} target="_blank" rel="noreferrer" className="text-[10px] text-emerald-400 flex-shrink-0">View</a>
+                        : <Loader size={11} className="animate-spin text-emerald-400 flex-shrink-0"/>
+                      }
+                      <button type="button" onClick={() => setFarmPhotos(prev => prev.filter((_,j) => j !== i))}
+                        className="text-gray-600 hover:text-red-400 p-0.5 flex-shrink-0"><X size={12}/></button>
+                    </div>
+                  ))}
+                  {farmPhotos.length < 5 && (
+                    <button type="button"
+                      onClick={() => {
+                        const inp = document.createElement('input');
+                        inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = false;
+                        inp.onchange = async (e) => {
+                          const file = e.target.files[0]; if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = async (ev) => {
+                            const base64 = ev.target.result.split(',')[1];
+                            const photoObj = { name: file.name, base64, mimeType: file.type };
+                            if (farmDbId) {
+                              try {
+                                const res = await farmAPI.uploadFile(farmDbId, 'photo', base64, file.name, file.type);
+                                photoObj.url = res.data.url;
+                                delete photoObj.base64;
+                              } catch(err) { console.error(err); }
+                            }
+                            setFarmPhotos(prev => [...prev, photoObj]);
+                          };
+                          reader.readAsDataURL(file);
+                        };
+                        inp.click();
+                      }}
+                      className="w-full flex items-center justify-center gap-2 bg-gray-800 border border-dashed border-gray-600 hover:border-emerald-500/50 rounded-xl px-4 py-2.5 text-sm text-gray-500 hover:text-gray-300 transition-colors">
+                      <Upload size={13}/> Add Photo ({farmPhotos.length}/5)
+                    </button>
+                  )}
+                </div>
+                <p className="text-[10px] text-gray-600 mt-1">Field photos for documentation</p>
+              </div>
             </div>
           </div>
         )}
@@ -809,6 +875,7 @@ export default function FarmEnrolPage() {
                 ['GPS Accuracy', boundaryData?.gps_accuracy_metres ? `±${boundaryData.gps_accuracy_metres}m` : '—'],
                 ['Aadhaar Upload', aadhaarFile ? (aadhaarFile.url ? '✓ Uploaded' : aadhaarFile.name) : '—'],
                 ['Patta Upload', pattaFile ? (pattaFile.url ? '✓ Uploaded' : pattaFile.name) : '—'],
+                ['Farm Photos', farmPhotos.length > 0 ? `${farmPhotos.filter(p=>p.url).length}/${farmPhotos.length} uploaded` : '—'],
               ].map(([label, value]) => (
                 <div key={label} className="flex justify-between py-2 border-b border-gray-800/60">
                   <span className="text-xs text-gray-500">{label}</span>
