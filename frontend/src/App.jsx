@@ -37,6 +37,7 @@ export default function App() {
             <Route path="qaqc" element={<QAQCPage />} />
             <Route path="farms" element={<FarmsListPage />} />
             <Route path="farms/new" element={<FarmEnrolPage />} />
+            <Route path="farms/:id/edit" element={<FarmEnrolPage />} />
             <Route path="farms/:id" element={<FarmDetailPage />} />
             <Route path="farms/:farmId/baseline" element={<BaselinePage />} />
             <Route path="farms/:farmId/soc" element={<SOCPage />} />

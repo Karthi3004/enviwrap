@@ -340,17 +340,21 @@ function BoundaryMapper({ onComplete, savedData }) {
 
 // ── Main Page ──
 export default function FarmEnrolPage() {
+  const { id } = useParams(); // present when editing /farms/:id/edit
+  const isEdit = Boolean(id);
+
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
+  const [loadingFarm, setLoadingFarm] = useState(isEdit);
   const [savedFeedback, setSavedFeedback] = useState(false);
-  const [farmDbId, setFarmDbId] = useState(null);
+  const [farmDbId, setFarmDbId] = useState(isEdit ? id : null);
   const [farmCode, setFarmCode] = useState(null);
   const [boundaryData, setBoundaryData] = useState(null);
   const [aadhaarFile, setAadhaarFile] = useState(null);
   const [pattaFile, setPattaFile] = useState(null);
   const navigate = useNavigate();
 
-  const { register, watch, getValues, setValue } = useForm({
+  const { register, watch, getValues, setValue, reset } = useForm({
     defaultValues: {
       state: 'Tamil Nadu',
       boundary_satellite_match: 'Yes',
@@ -362,6 +366,47 @@ export default function FarmEnrolPage() {
       slope_class: 'Flat',
     }
   });
+
+  // Load existing farm data when editing
+  useEffect(() => {
+    if (!isEdit) return;
+    const load = async () => {
+      try {
+        const { data: farm } = await farmAPI.get(id);
+        // Populate form fields
+        const fields = [
+          'farmer_full_name','farmer_phone','aadhaar_last4','village','block_taluk',
+          'district','cadastral_reference','land_type','boundary_satellite_match',
+          'boundary_discrepancy_note','overlap_detected','excluded_area_acres',
+          'excluded_area_type','field_officer_name_manual','surveyor_name',
+          'primary_crop','secondary_crop','crop_system_type','irrigation_source',
+          'slope_class','ipcc_climate_zone','fao_soil_group',
+        ];
+        const vals = {};
+        fields.forEach(f => { if (farm[f] !== null && farm[f] !== undefined) vals[f] = farm[f]; });
+        vals.overlap_detected = farm.overlap_detected ? 'true' : 'false';
+        vals.excluded_area_acres = farm.excluded_area_acres || 0;
+        reset(vals);
+        setFarmCode(farm.farm_id);
+        // Restore boundary data
+        if (farm.gps_boundary_coordinates?.length >= 3) {
+          setBoundaryData({
+            gps_boundary_coordinates: farm.gps_boundary_coordinates,
+            field_area_acres: farm.field_area_acres,
+            net_eligible_area_acres: farm.net_eligible_area_acres,
+            gps_accuracy_metres: farm.gps_accuracy_metres,
+            map_center: farm.map_center,
+            map_zoom: farm.map_zoom,
+          });
+        }
+        // Restore file URLs as display names
+        if (farm.aadhaar_file_url) setAadhaarFile({ name: 'Aadhaar (saved)', url: farm.aadhaar_file_url });
+        if (farm.patta_file_url)   setPattaFile({ name: 'Patta/Chitta (saved)', url: farm.patta_file_url });
+      } catch (err) { console.error('Failed to load farm:', err); }
+      finally { setLoadingFarm(false); }
+    };
+    load();
+  }, [id, isEdit]);
 
   const watched = watch();
 
@@ -422,21 +467,33 @@ export default function FarmEnrolPage() {
   };
 
   const handleSubmit = async () => {
-    await saveToSupabase('enrolled');
-    navigate('/farms');
+    const savedId = await saveToSupabase('enrolled');
+    if (isEdit) {
+      navigate(`/farms/${id}`);
+    } else {
+      navigate('/farms');
+    }
   };
+
+  if (loadingFarm) return (
+    <div className="p-6 flex justify-center items-center h-40">
+      <Loader size={24} className="animate-spin text-emerald-400" />
+    </div>
+  );
 
   return (
     <div className="p-4 sm:p-6 max-w-2xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-5">
-        <button onClick={() => navigate('/farms')} className="text-gray-600 hover:text-gray-300 p-1">
+        <button onClick={() => isEdit ? navigate(`/farms/${id}`) : navigate('/farms')} className="text-gray-600 hover:text-gray-300 p-1">
           <ChevronLeft size={20}/>
         </button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-lg font-bold text-white">Enrol New Farm</h1>
-          {farmCode && <p className="text-emerald-400 text-xs font-mono">{farmCode}</p>}
-          {!farmCode && <p className="text-gray-500 text-xs">Module 1 — Farm & Field Identity</p>}
+          <h1 className="text-lg font-bold text-white">{isEdit ? 'Edit Farm' : 'Enrol New Farm'}</h1>
+          {farmCode
+            ? <p className="text-emerald-400 text-xs font-mono">{farmCode}</p>
+            : <p className="text-gray-500 text-xs">Module 1 — Farm & Field Identity</p>
+          }
         </div>
         <button onClick={() => saveToSupabase('draft')} disabled={saving}
           className="flex items-center gap-1.5 text-xs border px-3 py-1.5 rounded-lg transition-colors flex-shrink-0 disabled:opacity-50 border-gray-700 text-gray-400 hover:text-emerald-400 hover:border-emerald-500/40">
@@ -711,7 +768,7 @@ export default function FarmEnrolPage() {
           <button type="button" onClick={handleSubmit} disabled={saving}
             className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 disabled:opacity-50 text-white text-sm font-medium px-6 py-2.5 rounded-xl transition-all">
             {saving ? <Loader size={14} className="animate-spin"/> : null}
-            {saving ? 'Saving…' : 'Submit Module 1'}
+            {saving ? 'Saving…' : isEdit ? 'Update Farm' : 'Submit Module 1'}
           </button>
         )}
       </div>
