@@ -5,7 +5,7 @@ import {
   ChevronLeft, ClipboardList, FlaskConical, Activity,
   ShieldCheck, AlertCircle, CheckCircle2, RefreshCw,
   Edit2, Download, MapPin, FileText, Image, Satellite,
-  Navigation, Map, Loader
+  Navigation, Map, Loader, Trash2
 } from 'lucide-react';
 
 const Row = ({ label, value }) => value ? (
@@ -221,6 +221,8 @@ export default function FarmDetailPage() {
   const [loading, setLoading] = useState(true);
   const [runningQAQC, setRunningQAQC] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -242,6 +244,17 @@ export default function FarmDetailPage() {
       setFlags(data.flags || []);
     } catch (err) { console.error(err); }
     finally { setRunningQAQC(false); }
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await farmAPI.delete(id);
+      navigate('/farms');
+    } catch (err) {
+      alert('Failed to delete farm');
+      setDeleting(false);
+    }
   };
 
   if (loading) return (
@@ -302,6 +315,10 @@ export default function FarmDetailPage() {
           <button onClick={runQAQC} disabled={runningQAQC}
             className="flex items-center gap-1 text-xs text-gray-400 border border-gray-700 px-2 py-1.5 rounded-lg">
             <RefreshCw size={11} className={runningQAQC ? 'animate-spin' : ''}/>
+          </button>
+          <button onClick={() => setShowDeleteConfirm(true)}
+            className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 border border-red-500/20 hover:border-red-500/50 px-2.5 py-1.5 rounded-lg transition-colors">
+            <Trash2 size={12}/>
           </button>
         </div>
       </div>
@@ -511,6 +528,42 @@ export default function FarmDetailPage() {
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 border border-red-500/30 rounded-2xl w-full max-w-sm p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-red-500/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <Trash2 size={18} className="text-red-400"/>
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-white">Delete Farm</h3>
+                <p className="text-xs text-gray-500 mt-0.5">This cannot be undone</p>
+              </div>
+            </div>
+            <div className="bg-gray-800/50 rounded-xl p-3 mb-4">
+              <p className="text-xs text-gray-300">
+                You are about to permanently delete:
+              </p>
+              <p className="text-sm font-semibold text-white mt-1">{farm.farmer_full_name || 'Draft Farm'}</p>
+              <p className="text-xs font-mono text-emerald-400">{farm.farm_id}</p>
+              <p className="text-xs text-gray-500 mt-1">All data, boundary, and uploaded documents will be deleted.</p>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 py-2.5 text-sm text-gray-400 border border-gray-700 rounded-xl hover:border-gray-600 transition-colors">
+                Cancel
+              </button>
+              <button onClick={handleDelete} disabled={deleting}
+                className="flex-1 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-500 disabled:opacity-50 rounded-xl transition-colors flex items-center justify-center gap-1.5">
+                {deleting ? <Loader size={13} className="animate-spin"/> : <Trash2 size={13}/>}
+                {deleting ? 'Deleting…' : 'Delete Farm'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
