@@ -355,7 +355,7 @@ export default function FarmEnrolPage() {
       state: 'Tamil Nadu',
       boundary_satellite_match: 'Yes',
       overlap_detected: 'false',
-      excluded_area_acres: '',
+      excluded_area_acres: 0,
       land_type: 'Cropland',
       crop_system_type: 'Annual',
       irrigation_source: 'Rainfed',
@@ -371,17 +371,26 @@ export default function FarmEnrolPage() {
 
   const buildPayload = () => {
     const data = getValues();
+    const excl = parseFloat(data.excluded_area_acres) || 0;
+    const fa = boundaryData?.field_area_acres || null;
+    const net = fa !== null ? Math.max(0, fa - excl) : null;
+    // Convert empty strings to null for all text fields
+    const clean = {};
+    Object.entries(data).forEach(([k, v]) => {
+      clean[k] = (v === '' || v === undefined) ? null : v;
+    });
     return {
-      ...data,
+      ...clean,
       gps_boundary_coordinates: boundaryData?.gps_boundary_coordinates || null,
-      field_area_acres: boundaryData?.field_area_acres || null,
-      field_area_ha: boundaryData ? boundaryData.field_area_acres / 2.47105 : null,
-      net_eligible_area_acres: netEligibleAcres,
-      net_eligible_area_ha: netEligibleAcres !== null ? netEligibleAcres / 2.47105 : null,
-      gps_accuracy_metres: boundaryData?.gps_accuracy_metres || null,
-      map_center: boundaryData?.map_center || null,
-      map_zoom: boundaryData?.map_zoom || null,
-      excluded_area_acres: parseFloat(data.excluded_area_acres) || 0,
+      field_area_acres:         fa,
+      field_area_ha:            fa !== null ? fa / 2.47105 : null,
+      net_eligible_area_acres:  net,
+      net_eligible_area_ha:     net !== null ? net / 2.47105 : null,
+      gps_accuracy_metres:      boundaryData?.gps_accuracy_metres || null,
+      map_center:               boundaryData?.map_center || null,
+      map_zoom:                 boundaryData?.map_zoom || null,
+      excluded_area_acres:      excl,
+      excluded_area_ha:         excl / 2.47105,
     };
   };
 
