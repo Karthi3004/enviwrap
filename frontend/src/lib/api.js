@@ -36,6 +36,8 @@ export const farmAPI = {
   update: (id, data) => api.put(`/farms/${id}`, data),
   delete: (id) => api.delete(`/farms/${id}`),
   uploadPhotos: (id, photos) => api.post(`/farms/${id}/photos`, { photos }),
+  uploadFile: (farmId, fileType, base64, filename, mimeType) =>
+    api.post(`/farms/${farmId}/upload/${fileType}`, { base64, filename, mimeType }),
   checkOverlap: (data) => api.post('/farms/check-overlap', data),
   getQAQC: (id) => api.get(`/farms/${id}/qaqc`),
 };
