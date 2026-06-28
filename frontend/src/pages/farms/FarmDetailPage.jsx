@@ -196,9 +196,32 @@ function generatePDF(farm) {
 
 <div class="section">
   <div class="section-title">Documents & Uploads</div>
-  ${farm.aadhaar_file_url ? `<div class="doc-ref">✓ Aadhaar Card: <a href="${farm.aadhaar_file_url}">${farm.aadhaar_file_url}</a></div>` : '<div class="doc-ref" style="background:#fef2f2;border-color:#fca5a5;color:#991b1b;">✗ Aadhaar Card: Not uploaded</div>'}
-  ${farm.patta_file_url   ? `<div class="doc-ref">✓ Patta/Chitta: <a href="${farm.patta_file_url}">${farm.patta_file_url}</a></div>`   : '<div class="doc-ref" style="background:#fef2f2;border-color:#fca5a5;color:#991b1b;">✗ Patta/Chitta: Not uploaded</div>'}
-  ${farm.farm_photos_urls?.length ? `<div class="doc-ref">✓ Farm Photos: ${farm.farm_photos_urls.length} photo(s) uploaded</div>` : ''}
+  
+  <div style="margin-bottom:16px;">
+    <div style="font-size:11px;font-weight:bold;color:#374151;margin-bottom:8px;">Aadhaar Card</div>
+    ${farm.aadhaar_file_url
+      ? `<img src="${farm.aadhaar_file_url}" alt="Aadhaar Card" style="max-width:100%;max-height:200px;object-fit:contain;border:1px solid #e5e7eb;border-radius:8px;display:block;"/>`
+      : '<div class="doc-ref" style="background:#fef2f2;border-color:#fca5a5;color:#991b1b;">✗ Not uploaded</div>'
+    }
+  </div>
+
+  <div style="margin-bottom:16px;">
+    <div style="font-size:11px;font-weight:bold;color:#374151;margin-bottom:8px;">Patta / Chitta</div>
+    ${farm.patta_file_url
+      ? `<img src="${farm.patta_file_url}" alt="Patta/Chitta" style="max-width:100%;max-height:200px;object-fit:contain;border:1px solid #e5e7eb;border-radius:8px;display:block;"/>`
+      : '<div class="doc-ref" style="background:#fef2f2;border-color:#fca5a5;color:#991b1b;">✗ Not uploaded</div>'
+    }
+  </div>
+
+  ${farm.farm_photos_urls?.length ? `
+  <div>
+    <div style="font-size:11px;font-weight:bold;color:#374151;margin-bottom:8px;">Farm Photos (${farm.farm_photos_urls.length})</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;">
+      ${farm.farm_photos_urls.map((url, i) =>
+        `<img src="${url}" alt="Farm photo ${i+1}" style="width:100%;height:150px;object-fit:cover;border:1px solid #e5e7eb;border-radius:8px;"/>`
+      ).join('')}
+    </div>
+  </div>` : ''}
 </div>
 
 <div class="footer">
@@ -436,14 +459,30 @@ export default function FarmDetailPage() {
         <div className="space-y-3">
           {/* Aadhaar */}
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <FileText size={14} className="text-blue-400"/>
-              <span className="text-sm font-semibold text-white">Aadhaar Card</span>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <FileText size={14} className="text-blue-400"/>
+                <span className="text-sm font-semibold text-white">Aadhaar Card</span>
+              </div>
+              {farm.aadhaar_file_url && (
+                <a href={farm.aadhaar_file_url} target="_blank" rel="noreferrer"
+                  className="text-[10px] text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-lg">
+                  Open ↗
+                </a>
+              )}
             </div>
             {farm.aadhaar_file_url ? (
-              <a href={farm.aadhaar_file_url} target="_blank" rel="noreferrer"
-                className="text-xs text-emerald-400 hover:text-emerald-300 underline break-all">
-                View Aadhaar Document ↗
+              <a href={farm.aadhaar_file_url} target="_blank" rel="noreferrer">
+                <img src={farm.aadhaar_file_url} alt="Aadhaar Card"
+                  className="w-full max-h-48 object-contain rounded-xl border border-gray-700 bg-gray-800"
+                  onError={(e) => {
+                    e.target.style.display='none';
+                    e.target.nextSibling.style.display='block';
+                  }}
+                />
+                <div style={{display:'none'}} className="text-xs text-emerald-400 underline mt-1">
+                  View Aadhaar Document (PDF) ↗
+                </div>
               </a>
             ) : (
               <p className="text-xs text-gray-600">Not uploaded</p>
@@ -452,14 +491,30 @@ export default function FarmDetailPage() {
 
           {/* Patta */}
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <FileText size={14} className="text-amber-400"/>
-              <span className="text-sm font-semibold text-white">Patta / Chitta</span>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <FileText size={14} className="text-amber-400"/>
+                <span className="text-sm font-semibold text-white">Patta / Chitta</span>
+              </div>
+              {farm.patta_file_url && (
+                <a href={farm.patta_file_url} target="_blank" rel="noreferrer"
+                  className="text-[10px] text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-lg">
+                  Open ↗
+                </a>
+              )}
             </div>
             {farm.patta_file_url ? (
-              <a href={farm.patta_file_url} target="_blank" rel="noreferrer"
-                className="text-xs text-emerald-400 hover:text-emerald-300 underline break-all">
-                View Patta Document ↗
+              <a href={farm.patta_file_url} target="_blank" rel="noreferrer">
+                <img src={farm.patta_file_url} alt="Patta / Chitta"
+                  className="w-full max-h-48 object-contain rounded-xl border border-gray-700 bg-gray-800"
+                  onError={(e) => {
+                    e.target.style.display='none';
+                    e.target.nextSibling.style.display='block';
+                  }}
+                />
+                <div style={{display:'none'}} className="text-xs text-emerald-400 underline mt-1">
+                  View Patta Document (PDF) ↗
+                </div>
               </a>
             ) : (
               <p className="text-xs text-gray-600">Not uploaded</p>
